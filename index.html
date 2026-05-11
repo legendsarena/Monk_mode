@@ -3,2650 +3,1326 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<meta name="theme-color" content="#0a0a0a">
+<meta name="theme-color" content="#080808">
 <meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-status-bar-style" content="black">
 <title>MONK MODE</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Share+Tech+Mono&family=Rajdhani:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Rajdhani:wght@400;500;600;700&family=Share+Tech+Mono&display=swap" rel="stylesheet">
 <style>
-/* ============================
-   ROOT VARIABLES & RESET
-============================ */
 :root {
   --bg: #080808;
-  --surface: #111111;
-  --surface2: #1a1a1a;
-  --surface3: #242424;
-  --border: #2a2a2a;
+  --s1: #121212;
+  --s2: #1c1c1c;
+  --s3: #262626;
+  --border: #2e2e2e;
   --red: #e63946;
-  --red-dim: rgba(230,57,70,0.15);
+  --redglow: rgba(230,57,70,0.2);
   --orange: #ff6b35;
-  --fire: linear-gradient(135deg, #e63946, #ff6b35);
+  --fire: linear-gradient(135deg,#e63946,#ff6b35);
   --gold: #ffd60a;
   --green: #06d6a0;
   --blue: #4361ee;
   --text: #f0f0f0;
-  --text2: #888888;
-  --text3: #555555;
-  --font-display: 'Bebas Neue', cursive;
-  --font-mono: 'Share Tech Mono', monospace;
-  --font-body: 'Rajdhani', sans-serif;
+  --t2: #999;
+  --t3: #555;
+  --display: 'Bebas Neue', cursive;
+  --mono: 'Share Tech Mono', monospace;
+  --body: 'Rajdhani', sans-serif;
+  --nav-h: 80px;
 }
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
+html,body{width:100%;min-height:100%;background:var(--bg);color:var(--text);font-family:var(--body);overflow:hidden;}
+::-webkit-scrollbar{width:2px;}
+::-webkit-scrollbar-thumb{background:var(--red);}
 
-* { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+/* APP */
+#app{width:100%;min-height:100vh;display:flex;flex-direction:column;position:relative;overflow:hidden;}
 
-html, body {
-  width:100%; height:100%; overflow:hidden;
-  background:var(--bg); color:var(--text);
-  font-family:var(--font-body); font-size:16px;
-}
+/* SCREENS */
+.screen{display:none;flex-direction:column;width:100%;min-height:100vh;max-height:100vh;overflow-y:auto;overflow-x:hidden;padding-bottom:calc(var(--nav-h) + 40px);-webkit-overflow-scrolling:touch;}
+.screen.active{display:flex;animation:fadeIn 0.25s ease;}
+@keyframes fadeIn{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
+@keyframes slideUp{from{opacity:0;transform:translateY(40px)}to{opacity:1;transform:translateY(0)}}
+@keyframes fireFlicker{0%,100%{text-shadow:0 0 12px #ff6b35,0 0 24px #e63946}50%{text-shadow:0 0 24px #ff6b35,0 0 48px #e63946,0 0 72px #ff6b35}}
+@keyframes shake{0%,100%{transform:translateX(0)}20%{transform:translateX(-10px)}40%{transform:translateX(10px)}60%{transform:translateX(-6px)}80%{transform:translateX(6px)}}
+@keyframes breathe{0%,100%{transform:scale(1)}50%{transform:scale(1.1)}}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:0.4}}
 
-/* ============================
-   SCROLLBAR & SELECTION
-============================ */
-::-webkit-scrollbar { width:3px; }
-::-webkit-scrollbar-track { background:var(--bg); }
-::-webkit-scrollbar-thumb { background:var(--red); border-radius:2px; }
-::selection { background:var(--red); color:#fff; }
-
-/* ============================
-   APP SHELL
-============================ */
-#app {
-  width:100%; height:100vh;
-  display:flex; flex-direction:column;
-  overflow:hidden; position:relative;
-}
-
-.screen {
-  display:none;
-  flex-direction:column;
-  width:100%; height:100%;
-  overflow-y:auto;
-  overflow-x:hidden;
-  animation: fadeIn 0.25s ease;
-}
-.screen.active { display:flex; }
-
-@keyframes fadeIn { from{opacity:0; transform:translateY(8px)} to{opacity:1; transform:translateY(0)} }
-@keyframes slideUp { from{opacity:0; transform:translateY(30px)} to{opacity:1; transform:translateY(0)} }
-@keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.5} }
-@keyframes fireFlicker {
-  0%,100%{text-shadow:0 0 10px #ff6b35, 0 0 20px #e63946}
-  50%{text-shadow:0 0 20px #ff6b35, 0 0 40px #e63946, 0 0 60px #ff6b35}
-}
-@keyframes shake {
-  0%,100%{transform:translateX(0)}
-  20%{transform:translateX(-8px)}
-  40%{transform:translateX(8px)}
-  60%{transform:translateX(-5px)}
-  80%{transform:translateX(5px)}
-}
-@keyframes countUp { from{transform:scale(0.8) translateY(5px);opacity:0} to{transform:scale(1) translateY(0);opacity:1} }
-@keyframes progressFill { from{width:0} to{width:var(--w)} }
-@keyframes spin { from{transform:rotate(0deg)} to{transform:rotate(360deg)} }
-@keyframes breathe {
-  0%,100%{transform:scale(1);opacity:0.7}
-  50%{transform:scale(1.15);opacity:1}
-}
-
-/* ============================
-   BOTTOM NAV
-============================ */
-#bottom-nav {
-  display:none;
-  position:fixed; bottom:0; left:0; right:0;
-  height:64px;
-  background:rgba(10,10,10,0.95);
+/* BOTTOM NAV */
+#nav{
+  display:none;position:fixed;bottom:0;left:0;right:0;
+  height:var(--nav-h);
+  background:rgba(8,8,8,0.97);
   backdrop-filter:blur(20px);
   border-top:1px solid var(--border);
-  z-index:1000;
-  flex-direction:row;
+  z-index:1000;flex-direction:row;
   align-items:stretch;
+  padding-bottom:env(safe-area-inset-bottom);
 }
-#bottom-nav.visible { display:flex; }
-.nav-item {
-  flex:1; display:flex; flex-direction:column;
-  align-items:center; justify-content:center;
-  gap:3px; cursor:pointer;
+#nav.show{display:flex;}
+.ni{
+  flex:1;display:flex;flex-direction:column;
+  align-items:center;justify-content:center;
+  gap:5px;cursor:pointer;
+  color:var(--t3);
+  font-family:var(--body);font-size:11px;font-weight:700;
+  letter-spacing:0.08em;text-transform:uppercase;
+  border:none;background:none;
   transition:all 0.2s;
-  color:var(--text3);
-  font-family:var(--font-body);
-  font-size:10px; font-weight:600;
-  letter-spacing:0.05em;
-  text-transform:uppercase;
-  padding-bottom:8px;
-  border:none; background:none;
   position:relative;
+  padding:0 4px;
 }
-.nav-item.active { color:var(--red); }
-.nav-item.active::after {
-  content:'';
-  position:absolute; top:0; left:50%; transform:translateX(-50%);
-  width:24px; height:2px;
-  background:var(--fire);
-  border-radius:0 0 2px 2px;
+.ni.on{color:var(--red);}
+.ni.on::before{
+  content:'';position:absolute;top:0;left:50%;transform:translateX(-50%);
+  width:32px;height:3px;background:var(--fire);border-radius:0 0 3px 3px;
 }
-.nav-icon { font-size:20px; line-height:1; }
+.ni-icon{font-size:26px;line-height:1;}
+.ni-label{font-size:10px;letter-spacing:1px;}
 
-/* ============================
-   ONBOARDING
-============================ */
-#screen-onboarding {
-  background:var(--bg);
-  justify-content:center; align-items:center;
-  padding:40px 24px;
+/* ===== ONBOARDING ===== */
+#screen-onboarding{
+  display:none;flex-direction:column;
+  align-items:center;justify-content:center;
+  padding:40px 28px;min-height:100vh;
 }
-.onboard-slide {
-  display:none;
-  flex-direction:column;
-  align-items:center;
-  text-align:center;
-  width:100%;
-  animation:slideUp 0.4s ease;
+#screen-onboarding.active{display:flex;}
+.ob-slide{display:none;flex-direction:column;align-items:center;text-align:center;width:100%;animation:slideUp 0.4s ease;}
+.ob-slide.on{display:flex;}
+.ob-emoji{font-size:90px;margin-bottom:28px;animation:breathe 3s infinite;}
+.ob-title{font-family:var(--display);font-size:60px;line-height:1;background:var(--fire);-webkit-background-clip:text;-webkit-text-fill-color:transparent;margin-bottom:16px;letter-spacing:2px;}
+.ob-desc{font-size:18px;color:var(--t2);line-height:1.7;margin-bottom:36px;font-weight:500;max-width:320px;}
+.ob-dots{display:flex;gap:10px;margin-bottom:36px;}
+.ob-dot{width:10px;height:10px;border-radius:50%;background:var(--s3);transition:all 0.3s;}
+.ob-dot.on{width:28px;border-radius:5px;background:var(--red);}
+.ob-goals{display:grid;grid-template-columns:1fr 1fr;gap:14px;width:100%;margin-bottom:28px;}
+.og{
+  padding:18px 14px;background:var(--s2);border:2px solid var(--border);
+  border-radius:14px;color:var(--t2);font-size:16px;font-family:var(--body);
+  font-weight:700;cursor:pointer;transition:all 0.2s;text-align:center;
 }
-.onboard-slide.active { display:flex; }
+.og.on{border-color:var(--red);color:var(--text);background:var(--redglow);}
+.ob-input{
+  width:100%;padding:20px 22px;background:var(--s2);border:2px solid var(--border);
+  border-radius:14px;color:var(--text);font-size:20px;font-family:var(--body);
+  font-weight:600;outline:none;margin-bottom:20px;transition:border-color 0.2s;
+}
+.ob-input:focus{border-color:var(--red);}
+.ob-input::placeholder{color:var(--t3);}
 
-.ob-icon { font-size:80px; margin-bottom:24px; animation:breathe 3s infinite; }
-.ob-title {
-  font-family:var(--font-display);
-  font-size:52px; line-height:1;
-  background:var(--fire);
-  -webkit-background-clip:text;
-  -webkit-text-fill-color:transparent;
-  margin-bottom:16px;
+/* BUTTONS */
+.btn{
+  width:100%;padding:20px;border-radius:14px;border:none;cursor:pointer;
+  font-family:var(--display);font-size:24px;letter-spacing:2px;
+  transition:all 0.15s;position:relative;overflow:hidden;
 }
-.ob-sub {
-  font-size:17px; color:var(--text2);
-  line-height:1.6; font-weight:500;
-  margin-bottom:40px;
-  max-width:300px;
-}
-.ob-dots {
-  display:flex; gap:8px; margin-bottom:40px;
-}
-.ob-dot {
-  width:8px; height:8px; border-radius:50%;
-  background:var(--surface3); transition:all 0.3s;
-}
-.ob-dot.active { width:24px; border-radius:4px; background:var(--red); }
+.btn-fire{background:var(--fire);color:#fff;box-shadow:0 4px 24px rgba(230,57,70,0.4);}
+.btn-fire:active{transform:scale(0.97);}
+.btn-ghost{background:transparent;border:2px solid var(--border);color:var(--t2);}
+.btn-danger{background:var(--red);color:#fff;}
+.btn-sm{width:auto;padding:14px 24px;font-size:18px;}
+.btn-outline-red{background:rgba(230,57,70,0.1);border:2px solid var(--red);color:var(--red);font-family:var(--body);font-size:15px;font-weight:700;letter-spacing:2px;text-transform:uppercase;border-radius:12px;padding:14px;cursor:pointer;width:100%;transition:all 0.2s;}
+.btn-outline-red:active{background:rgba(230,57,70,0.25);}
 
-.ob-name-input {
-  width:100%; padding:18px 20px;
-  background:var(--surface2);
-  border:1px solid var(--border);
-  border-radius:12px;
-  color:var(--text); font-size:18px;
-  font-family:var(--font-body); font-weight:600;
-  outline:none; margin-bottom:16px;
-  transition:border-color 0.2s;
-}
-.ob-name-input:focus { border-color:var(--red); }
-.ob-name-input::placeholder { color:var(--text3); }
+/* ===== HOME ===== */
+.home-top{padding:24px 22px 16px;display:flex;justify-content:space-between;align-items:flex-start;}
+.home-greet{font-family:var(--display);font-size:13px;letter-spacing:4px;color:var(--t3);}
+.home-name{font-family:var(--display);font-size:38px;line-height:1.1;color:var(--text);}
+.home-date{font-family:var(--mono);font-size:12px;color:var(--t3);text-align:right;line-height:1.6;}
 
-.ob-goal-grid { display:grid; grid-template-columns:1fr 1fr; gap:12px; width:100%; margin-bottom:24px; }
-.ob-goal-btn {
-  padding:14px 12px;
-  background:var(--surface2);
-  border:2px solid var(--border);
-  border-radius:12px;
-  color:var(--text2); font-size:14px;
-  font-family:var(--font-body); font-weight:600;
-  cursor:pointer; transition:all 0.2s;
-  text-align:center;
-}
-.ob-goal-btn.selected { border-color:var(--red); color:var(--text); background:var(--red-dim); }
-
-/* ============================
-   BUTTONS
-============================ */
-.btn {
-  width:100%; padding:18px;
-  border-radius:12px;
-  border:none; cursor:pointer;
-  font-family:var(--font-display);
-  font-size:22px; letter-spacing:2px;
-  transition:all 0.15s;
-  position:relative; overflow:hidden;
-}
-.btn::after {
-  content:'';
-  position:absolute; inset:0;
-  background:rgba(255,255,255,0.1);
-  opacity:0; transition:opacity 0.15s;
-}
-.btn:active::after { opacity:1; }
-.btn-primary {
-  background:var(--fire);
-  color:#fff;
-  box-shadow:0 4px 20px rgba(230,57,70,0.4);
-}
-.btn-primary:hover { box-shadow:0 6px 30px rgba(230,57,70,0.6); transform:translateY(-1px); }
-.btn-ghost {
-  background:transparent;
-  border:1px solid var(--border);
-  color:var(--text2);
-}
-.btn-danger { background:var(--red); color:#fff; }
-.btn-sm {
-  width:auto; padding:10px 20px;
-  font-size:16px; letter-spacing:1px;
-}
-
-/* ============================
-   HOME SCREEN
-============================ */
-#screen-home {
-  padding:0 0 80px;
-}
-.home-header {
-  padding:20px 20px 16px;
-  display:flex; justify-content:space-between; align-items:flex-start;
-}
-.home-greeting {
-  font-family:var(--font-display);
-  font-size:14px; letter-spacing:3px;
-  color:var(--text3); text-transform:uppercase;
-}
-.home-name {
-  font-family:var(--font-display);
-  font-size:32px; line-height:1.1;
-  color:var(--text);
-}
-.home-date {
-  font-family:var(--font-mono);
-  font-size:11px; color:var(--text3);
-  text-align:right; margin-top:4px;
-}
-
-/* Monk Score Ring */
-.score-section {
-  display:flex; justify-content:center;
-  padding:20px 20px 0;
-}
-.score-ring-wrap {
-  position:relative;
-  width:200px; height:200px;
-}
-.score-ring-wrap svg {
-  transform:rotate(-90deg);
-}
-.score-ring-bg { fill:none; stroke:var(--surface3); stroke-width:12; }
-.score-ring-fill {
-  fill:none; stroke:url(#scoreGrad); stroke-width:12;
-  stroke-linecap:round;
-  stroke-dasharray:565.5;
-  stroke-dashoffset:565.5;
-  transition:stroke-dashoffset 1s cubic-bezier(0.4,0,0.2,1);
-}
-.score-center {
-  position:absolute; inset:0;
-  display:flex; flex-direction:column;
-  align-items:center; justify-content:center;
-}
-.score-num {
-  font-family:var(--font-display);
-  font-size:62px; line-height:1;
-  background:var(--fire);
-  -webkit-background-clip:text;
-  -webkit-text-fill-color:transparent;
-}
-.score-label {
-  font-family:var(--font-mono);
-  font-size:10px; color:var(--text3);
-  letter-spacing:3px;
-}
-.score-rank {
-  font-family:var(--font-display);
-  font-size:16px; color:var(--orange);
-  letter-spacing:2px;
-}
+/* Score Ring */
+.score-wrap{display:flex;justify-content:center;padding:16px 22px 0;}
+.score-ring-box{position:relative;width:210px;height:210px;}
+.score-ring-box svg{transform:rotate(-90deg);}
+.ring-bg{fill:none;stroke:var(--s3);stroke-width:14;}
+.ring-fill{fill:none;stroke:url(#sg);stroke-width:14;stroke-linecap:round;stroke-dasharray:565.5;stroke-dashoffset:565.5;transition:stroke-dashoffset 1.2s cubic-bezier(0.4,0,0.2,1);}
+.score-center{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;}
+.score-num{font-family:var(--display);font-size:68px;line-height:1;background:var(--fire);-webkit-background-clip:text;-webkit-text-fill-color:transparent;}
+.score-lbl{font-family:var(--mono);font-size:10px;color:var(--t3);letter-spacing:3px;}
+.score-rank-txt{font-family:var(--display);font-size:18px;color:var(--orange);letter-spacing:2px;}
 
 /* Streak Row */
-.streak-row {
-  display:flex; gap:12px;
-  padding:20px 20px 0;
-}
-.streak-card {
-  flex:1;
-  background:var(--surface);
-  border:1px solid var(--border);
-  border-radius:16px;
-  padding:16px 12px;
-  text-align:center;
-  position:relative; overflow:hidden;
-}
-.streak-card::before {
-  content:'';
-  position:absolute; top:0; left:0; right:0;
-  height:2px;
-  background:var(--fire);
-}
-.streak-val {
-  font-family:var(--font-display);
-  font-size:38px; line-height:1;
-  color:var(--text);
-  animation:countUp 0.5s ease;
-}
-.streak-val.fire { color:var(--orange); animation:fireFlicker 2s infinite; }
-.streak-lbl {
-  font-size:11px; font-weight:700;
-  color:var(--text3); letter-spacing:2px;
-  text-transform:uppercase;
-  margin-top:4px;
-}
-.streak-emoji { font-size:20px; display:block; margin-bottom:4px; }
+.streak-row{display:flex;gap:12px;padding:20px 22px 0;}
+.sc{flex:1;background:var(--s1);border:1px solid var(--border);border-radius:18px;padding:18px 12px;text-align:center;position:relative;overflow:hidden;}
+.sc::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:var(--fire);}
+.sc-emoji{font-size:22px;display:block;margin-bottom:6px;}
+.sc-val{font-family:var(--display);font-size:42px;line-height:1;color:var(--text);}
+.sc-val.fire{color:var(--orange);animation:fireFlicker 2s infinite;}
+.sc-lbl{font-size:12px;font-weight:700;color:var(--t3);letter-spacing:2px;text-transform:uppercase;margin-top:5px;}
 
-/* Quick Stats */
-.section-title {
-  font-family:var(--font-display);
-  font-size:22px; letter-spacing:3px;
-  color:var(--text); text-transform:uppercase;
-  padding:20px 20px 12px;
-}
-
-.quick-grid { display:grid; grid-template-columns:1fr 1fr; gap:10px; padding:0 20px; }
-.quick-card {
-  background:var(--surface);
-  border:1px solid var(--border);
-  border-radius:14px;
-  padding:16px;
-  cursor:pointer;
-  transition:all 0.2s;
-  position:relative; overflow:hidden;
-}
-.quick-card:active { transform:scale(0.97); border-color:var(--red); }
-.qc-icon { font-size:24px; margin-bottom:8px; }
-.qc-val {
-  font-family:var(--font-display);
-  font-size:28px; color:var(--text);
-}
-.qc-lbl { font-size:12px; color:var(--text3); font-weight:600; letter-spacing:1px; margin-top:2px; }
-.qc-status {
-  position:absolute; top:12px; right:12px;
-  width:8px; height:8px; border-radius:50%;
-}
-.qc-status.done { background:var(--green); box-shadow:0 0 8px var(--green); }
-.qc-status.pending { background:var(--text3); }
+/* Rank badge */
+.rank-badge{margin:18px 22px 0;background:var(--s1);border:1px solid var(--border);border-radius:18px;padding:18px 20px;display:flex;align-items:center;gap:18px;cursor:pointer;}
+.rb-icon{font-size:44px;}
+.rb-info{flex:1;}
+.rb-name{font-family:var(--display);font-size:28px;color:var(--gold);letter-spacing:2px;}
+.rb-sub{font-size:14px;color:var(--t2);font-weight:500;margin-top:2px;}
+.rb-bar{margin-top:10px;height:5px;background:var(--s3);border-radius:3px;overflow:hidden;}
+.rb-fill{height:100%;background:var(--fire);border-radius:3px;transition:width 1.2s ease;}
 
 /* Check-in CTA */
-.checkin-cta {
-  margin:20px;
-  background:linear-gradient(135deg, #1a0a0a, #0d0d0d);
-  border:1px solid rgba(230,57,70,0.3);
-  border-radius:16px;
-  padding:20px;
-  display:flex; align-items:center; gap:16px;
-  cursor:pointer;
-  transition:all 0.2s;
-}
-.checkin-cta:active { transform:scale(0.98); }
-.cta-icon { font-size:36px; }
-.cta-text { flex:1; }
-.cta-title {
-  font-family:var(--font-display);
-  font-size:20px; letter-spacing:2px;
-  color:var(--text);
-}
-.cta-sub { font-size:13px; color:var(--text3); margin-top:2px; font-weight:500; }
-.cta-arrow { font-size:24px; color:var(--red); }
+.ci-cta{margin:18px 22px 0;background:linear-gradient(135deg,#1a0808,#0d0d0d);border:1px solid rgba(230,57,70,0.35);border-radius:18px;padding:22px 20px;display:flex;align-items:center;gap:18px;cursor:pointer;transition:all 0.2s;}
+.ci-cta:active{transform:scale(0.98);}
+.cta-ico{font-size:40px;}
+.cta-txt{flex:1;}
+.cta-title{font-family:var(--display);font-size:22px;letter-spacing:2px;}
+.cta-sub{font-size:14px;color:var(--t3);margin-top:3px;font-weight:500;}
+.cta-arrow{font-size:32px;color:var(--red);}
 
-/* Rank Badge */
-.rank-badge {
-  margin:0 20px 20px;
-  background:var(--surface);
-  border:1px solid var(--border);
-  border-radius:16px;
-  padding:16px 20px;
-  display:flex; align-items:center; gap:16px;
-}
-.rank-icon { font-size:40px; }
-.rank-info { flex:1; }
-.rank-name {
-  font-family:var(--font-display);
-  font-size:26px; color:var(--gold);
-  letter-spacing:2px;
-}
-.rank-sub { font-size:13px; color:var(--text2); font-weight:500; }
-.rank-progress {
-  margin-top:8px;
-  height:4px; background:var(--surface3);
-  border-radius:2px; overflow:hidden;
-}
-.rank-fill {
-  height:100%; background:var(--fire);
-  border-radius:2px;
-  transition:width 1s ease;
-}
+/* Section title */
+.sec-title{font-family:var(--display);font-size:22px;letter-spacing:3px;color:var(--text);text-transform:uppercase;padding:22px 22px 14px;}
 
-/* ============================
-   CHECK-IN SCREEN
-============================ */
-#screen-checkin { padding:0 0 100px; }
-.checkin-header {
-  padding:20px;
-  background:linear-gradient(180deg, #0d0508 0%, var(--bg) 100%);
-}
-.checkin-title {
-  font-family:var(--font-display);
-  font-size:40px; letter-spacing:3px;
-  background:var(--fire);
-  -webkit-background-clip:text;
-  -webkit-text-fill-color:transparent;
-}
-.checkin-sub { font-size:14px; color:var(--text3); font-weight:600; letter-spacing:1px; margin-top:4px; }
+/* Quick grid */
+.qgrid{display:grid;grid-template-columns:1fr 1fr;gap:12px;padding:0 22px;}
+.qcard{background:var(--s1);border:1px solid var(--border);border-radius:16px;padding:20px 18px;cursor:pointer;transition:all 0.2s;position:relative;}
+.qcard:active{transform:scale(0.97);border-color:var(--red);}
+.qc-ico{font-size:28px;margin-bottom:10px;}
+.qc-val{font-family:var(--display);font-size:32px;color:var(--text);}
+.qc-lbl{font-size:13px;color:var(--t3);font-weight:700;letter-spacing:1px;margin-top:4px;}
+.qc-dot{position:absolute;top:14px;right:14px;width:10px;height:10px;border-radius:50%;}
+.qc-dot.done{background:var(--green);box-shadow:0 0 10px var(--green);}
+.qc-dot.pend{background:var(--s3);}
 
-.ci-section { padding:0 20px 4px; }
-.ci-section-title {
-  font-family:var(--font-display);
-  font-size:14px; letter-spacing:4px;
-  color:var(--text3); text-transform:uppercase;
-  margin:20px 0 12px;
-  display:flex; align-items:center; gap:8px;
-}
-.ci-section-title::after {
-  content:''; flex:1; height:1px; background:var(--border);
-}
+/* ===== CHECK-IN ===== */
+.ci-header{padding:20px 22px 16px;background:linear-gradient(180deg,#0e0508,var(--bg));}
+.ci-back{background:none;border:none;color:var(--t2);font-size:36px;cursor:pointer;line-height:1;margin-right:12px;}
+.ci-title{font-family:var(--display);font-size:44px;letter-spacing:3px;background:var(--fire);-webkit-background-clip:text;-webkit-text-fill-color:transparent;}
+.ci-date-lbl{font-size:14px;color:var(--t3);font-weight:600;letter-spacing:2px;margin-top:4px;}
 
-.ci-row {
-  display:flex; align-items:center;
-  background:var(--surface);
-  border:1px solid var(--border);
-  border-radius:14px;
-  padding:14px 16px;
-  margin-bottom:10px;
-  gap:14px;
-  cursor:pointer;
-  transition:all 0.2s;
-}
-.ci-row:active { border-color:var(--red); background:var(--red-dim); }
-.ci-row-icon { font-size:24px; width:32px; text-align:center; }
-.ci-row-label { flex:1; font-size:16px; font-weight:600; color:var(--text); }
-.ci-row-value {
-  font-family:var(--font-mono);
-  font-size:14px; color:var(--text2);
-}
-.ci-toggle {
-  width:48px; height:26px;
-  background:var(--surface3);
-  border-radius:13px;
-  position:relative;
-  transition:background 0.2s;
-  cursor:pointer;
-  flex-shrink:0;
-}
-.ci-toggle.on { background:var(--green); }
-.ci-toggle::after {
-  content:''; position:absolute;
-  top:3px; left:3px;
-  width:20px; height:20px;
-  background:#fff; border-radius:50%;
-  transition:transform 0.2s;
-  box-shadow:0 1px 4px rgba(0,0,0,0.3);
-}
-.ci-toggle.on::after { transform:translateX(22px); }
+.ci-sec{padding:0 22px;}
+.ci-sec-hd{font-family:var(--display);font-size:15px;letter-spacing:4px;color:var(--t3);text-transform:uppercase;margin:24px 0 14px;display:flex;align-items:center;gap:10px;}
+.ci-sec-hd::after{content:'';flex:1;height:1px;background:var(--border);}
 
-.ci-slider-wrap { padding:0 20px; margin-bottom:10px; }
-.ci-slider {
-  width:100%;
-  -webkit-appearance:none;
-  height:6px;
-  background:var(--surface3);
-  border-radius:3px;
-  outline:none;
-}
-.ci-slider::-webkit-slider-thumb {
-  -webkit-appearance:none;
-  width:22px; height:22px;
-  border-radius:50%;
-  background:var(--fire);
-  background:var(--red);
-  cursor:pointer;
-  box-shadow:0 0 10px rgba(230,57,70,0.5);
-}
+.ci-row{display:flex;align-items:center;background:var(--s1);border:1px solid var(--border);border-radius:16px;padding:18px 20px;margin-bottom:12px;gap:16px;cursor:pointer;transition:all 0.2s;}
+.ci-row:active{border-color:var(--red);}
+.ci-row-ico{font-size:28px;width:36px;text-align:center;}
+.ci-row-lbl{flex:1;font-size:18px;font-weight:700;color:var(--text);}
 
-.ci-input {
-  background:var(--surface);
-  border:1px solid var(--border);
-  border-radius:14px;
-  padding:14px 16px;
-  color:var(--text);
-  font-family:var(--font-body);
-  font-size:16px; font-weight:600;
-  width:100%;
-  outline:none;
-  margin-bottom:10px;
-}
-.ci-input:focus { border-color:var(--red); }
+/* Toggle */
+.tog{width:60px;height:32px;background:var(--s3);border-radius:16px;position:relative;transition:background 0.2s;cursor:pointer;flex-shrink:0;}
+.tog.on{background:var(--green);}
+.tog::after{content:'';position:absolute;top:4px;left:4px;width:24px;height:24px;background:#fff;border-radius:50%;transition:transform 0.2s;box-shadow:0 2px 6px rgba(0,0,0,0.4);}
+.tog.on::after{transform:translateX(28px);}
 
-.ci-time-row {
-  display:grid; grid-template-columns:1fr 1fr;
-  gap:10px; margin-bottom:10px;
-}
+/* Slider */
+.slider-wrap{margin-bottom:12px;}
+.slider-lbl{font-size:13px;color:var(--t3);font-weight:700;letter-spacing:1px;display:flex;justify-content:space-between;margin-bottom:10px;}
+.slider-lbl span{color:var(--text);font-size:15px;}
+input[type=range]{width:100%;-webkit-appearance:none;height:8px;background:var(--s3);border-radius:4px;outline:none;}
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:28px;height:28px;border-radius:50%;background:var(--red);cursor:pointer;box-shadow:0 0 12px rgba(230,57,70,0.6);}
 
-.mood-grid { display:flex; gap:8px; padding:0 20px; margin-bottom:10px; flex-wrap:wrap; }
-.mood-btn {
-  flex:1; min-width:60px;
-  padding:12px 8px;
-  background:var(--surface);
-  border:2px solid var(--border);
-  border-radius:12px;
-  text-align:center;
-  cursor:pointer;
-  transition:all 0.2s;
-  font-size:13px; font-weight:700;
-  color:var(--text3);
-}
-.mood-btn .mood-emoji { font-size:24px; display:block; margin-bottom:4px; }
-.mood-btn.selected { border-color:var(--red); color:var(--text); background:var(--red-dim); }
+/* Time inputs */
+.time-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px;}
+.time-box label{font-size:12px;color:var(--t3);font-weight:700;letter-spacing:1px;display:block;margin-bottom:8px;}
+.ci-input{width:100%;padding:16px 18px;background:var(--s1);border:1px solid var(--border);border-radius:14px;color:var(--text);font-size:17px;font-family:var(--body);font-weight:600;outline:none;transition:border-color 0.2s;}
+.ci-input:focus{border-color:var(--red);}
 
-.submit-section { padding:20px; }
+/* Mood */
+.mood-row{display:flex;gap:10px;flex-wrap:nowrap;overflow-x:auto;padding-bottom:4px;}
+.mood-btn{flex-shrink:0;padding:14px 10px;background:var(--s1);border:2px solid var(--border);border-radius:14px;text-align:center;cursor:pointer;transition:all 0.2s;min-width:72px;}
+.mood-btn .me{font-size:28px;display:block;margin-bottom:5px;}
+.mood-btn span{font-size:13px;font-weight:700;color:var(--t2);}
+.mood-btn.on{border-color:var(--red);background:var(--redglow);}
+.mood-btn.on span{color:var(--text);}
 
-/* ============================
-   STREAK SCREEN
-============================ */
-#screen-streak { padding:0 0 80px; }
-.streak-header {
-  padding:20px;
-  text-align:center;
-  background:linear-gradient(180deg, #120505 0%, var(--bg) 100%);
-}
-.streak-big {
-  font-family:var(--font-display);
-  font-size:100px; line-height:1;
-  color:var(--orange);
-  animation:fireFlicker 2s infinite;
-  display:block;
-}
-.streak-big-label {
-  font-family:var(--font-mono);
-  font-size:12px; letter-spacing:4px;
-  color:var(--text3);
-}
+textarea.ci-input{resize:none;min-height:100px;}
 
-.calendar-wrap { padding:0 20px 20px; }
-.cal-grid {
-  display:grid; grid-template-columns:repeat(7, 1fr);
-  gap:6px; margin-top:12px;
-}
-.cal-day-label {
-  text-align:center;
-  font-size:11px; font-weight:700;
-  color:var(--text3); letter-spacing:1px;
-  padding:4px 0;
-}
-.cal-day {
-  aspect-ratio:1;
-  border-radius:8px;
-  display:flex; align-items:center; justify-content:center;
-  font-family:var(--font-mono);
-  font-size:12px;
-  background:var(--surface);
-  color:var(--text3);
-  border:1px solid var(--border);
-  position:relative;
-  cursor:pointer;
-}
-.cal-day.done {
-  background:rgba(6,214,160,0.15);
-  border-color:var(--green);
-  color:var(--green);
-}
-.cal-day.done::after {
-  content:'✓';
-  position:absolute; bottom:1px; right:3px;
-  font-size:8px; color:var(--green);
-}
-.cal-day.missed {
-  background:rgba(230,57,70,0.1);
-  border-color:rgba(230,57,70,0.3);
-  color:var(--red);
-}
-.cal-day.today {
-  border-color:var(--orange);
-  color:var(--orange);
-  box-shadow:0 0 8px rgba(255,107,53,0.3);
-}
-.cal-day.future { opacity:0.3; }
+/* ===== STREAK ===== */
+.str-header{padding:28px 22px 20px;text-align:center;background:linear-gradient(180deg,#120505,var(--bg));}
+.str-big{font-family:var(--display);font-size:110px;line-height:1;color:var(--orange);animation:fireFlicker 2s infinite;display:block;}
+.str-big-lbl{font-family:var(--mono);font-size:13px;letter-spacing:4px;color:var(--t3);}
 
-.streak-stats-grid {
-  display:grid; grid-template-columns:1fr 1fr;
-  gap:10px; padding:0 20px 20px;
-}
-.stat-card {
-  background:var(--surface);
-  border:1px solid var(--border);
-  border-radius:14px;
-  padding:20px 16px;
-  text-align:center;
-}
-.stat-val {
-  font-family:var(--font-display);
-  font-size:42px; color:var(--text);
-}
-.stat-val.gold { color:var(--gold); }
-.stat-val.green { color:var(--green); }
-.stat-val.red { color:var(--red); }
-.stat-lbl { font-size:12px; color:var(--text3); font-weight:700; letter-spacing:2px; text-transform:uppercase; margin-top:4px; }
+.stat-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;padding:0 22px 20px;}
+.stat-card{background:var(--s1);border:1px solid var(--border);border-radius:16px;padding:22px 16px;text-align:center;}
+.stat-val{font-family:var(--display);font-size:48px;color:var(--text);}
+.stat-val.gold{color:var(--gold);}
+.stat-val.green{color:var(--green);}
+.stat-val.red{color:var(--red);}
+.stat-lbl{font-size:13px;color:var(--t3);font-weight:700;letter-spacing:2px;text-transform:uppercase;margin-top:6px;}
 
-/* ============================
-   FOCUS TIMER SCREEN
-============================ */
-#screen-focus { padding:0 0 80px; }
-.focus-header {
-  padding:24px 20px 16px;
-  display:flex; justify-content:space-between; align-items:center;
-}
-.focus-title {
-  font-family:var(--font-display);
-  font-size:36px; letter-spacing:3px;
-  color:var(--text);
-}
+/* Calendar */
+.cal-wrap{padding:0 22px 20px;}
+.cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:7px;margin-top:10px;}
+.cal-hd{text-align:center;font-size:12px;font-weight:700;color:var(--t3);letter-spacing:1px;padding:5px 0;}
+.cal-day{aspect-ratio:1;border-radius:10px;display:flex;align-items:center;justify-content:center;font-family:var(--mono);font-size:13px;background:var(--s1);color:var(--t3);border:1px solid var(--border);position:relative;}
+.cal-day.done{background:rgba(6,214,160,0.15);border-color:var(--green);color:var(--green);}
+.cal-day.missed{background:rgba(230,57,70,0.1);border-color:rgba(230,57,70,0.3);color:var(--red);}
+.cal-day.today{border-color:var(--orange);color:var(--orange);box-shadow:0 0 10px rgba(255,107,53,0.3);}
+.cal-day.future{opacity:0.25;}
 
-.timer-section {
-  display:flex; justify-content:center; align-items:center;
-  padding:20px;
-  flex-direction:column;
-  gap:20px;
-}
-.timer-ring-wrap {
-  position:relative;
-  width:240px; height:240px;
-}
-.timer-ring-wrap svg { transform:rotate(-90deg); }
-.timer-ring-bg { fill:none; stroke:var(--surface3); stroke-width:10; }
-.timer-ring-fill {
-  fill:none; stroke:url(#timerGrad);
-  stroke-width:10; stroke-linecap:round;
-  stroke-dasharray:691.2;
-  stroke-dashoffset:0;
-  transition:stroke-dashoffset 1s linear;
-}
-.timer-center {
-  position:absolute; inset:0;
-  display:flex; flex-direction:column;
-  align-items:center; justify-content:center;
-}
-.timer-display {
-  font-family:var(--font-display);
-  font-size:64px; letter-spacing:2px;
-  color:var(--text);
-}
-.timer-mode-label {
-  font-family:var(--font-mono);
-  font-size:11px; color:var(--text3);
-  letter-spacing:4px; text-transform:uppercase;
-}
-.timer-session-num {
-  font-family:var(--font-mono);
-  font-size:13px; color:var(--orange);
-  letter-spacing:2px;
-}
+/* ===== FOCUS ===== */
+.focus-header{padding:24px 22px 16px;display:flex;justify-content:space-between;align-items:center;}
+.focus-title{font-family:var(--display);font-size:40px;letter-spacing:3px;}
+.focus-total{font-family:var(--mono);font-size:14px;color:var(--t3);}
+.focus-total span{color:var(--orange);}
 
-.timer-modes {
-  display:flex; gap:8px;
-  padding:0 20px;
-}
-.timer-mode-btn {
-  flex:1; padding:12px 8px;
-  background:var(--surface);
-  border:2px solid var(--border);
-  border-radius:12px;
-  color:var(--text3);
-  font-family:var(--font-body);
-  font-size:14px; font-weight:700;
-  cursor:pointer; transition:all 0.2s;
-  text-align:center;
-  letter-spacing:1px;
-}
-.timer-mode-btn.active { border-color:var(--red); color:var(--text); background:var(--red-dim); }
+.timer-wrap{display:flex;flex-direction:column;align-items:center;padding:10px 22px 0;}
+.timer-ring-box{position:relative;width:260px;height:260px;}
+.timer-ring-box svg{transform:rotate(-90deg);}
+.t-ring-bg{fill:none;stroke:var(--s3);stroke-width:12;}
+.t-ring-fill{fill:none;stroke:url(#tg);stroke-width:12;stroke-linecap:round;stroke-dasharray:753.6;stroke-dashoffset:0;transition:stroke-dashoffset 1s linear;}
+.timer-center{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;}
+.timer-num{font-family:var(--display);font-size:72px;letter-spacing:2px;color:var(--text);}
+.timer-phase{font-family:var(--mono);font-size:12px;color:var(--t3);letter-spacing:4px;}
+.timer-sess{font-family:var(--mono);font-size:14px;color:var(--orange);letter-spacing:2px;margin-top:4px;}
 
-.timer-controls {
-  display:flex; gap:12px;
-  padding:16px 20px 0;
-  align-items:center; justify-content:center;
-}
-.timer-btn {
-  width:64px; height:64px;
-  border-radius:50%;
-  border:none; cursor:pointer;
-  font-size:24px;
-  display:flex; align-items:center; justify-content:center;
-  transition:all 0.2s;
-}
-.timer-btn-main {
-  width:80px; height:80px;
-  background:var(--fire);
-  color:#fff;
-  box-shadow:0 4px 20px rgba(230,57,70,0.4);
-}
-.timer-btn-secondary {
-  background:var(--surface2);
-  border:1px solid var(--border);
-  color:var(--text2);
-}
-.timer-btn:active { transform:scale(0.93); }
+.timer-modes{display:flex;gap:10px;margin:20px 0 0;width:100%;}
+.tm-btn{flex:1;padding:14px 8px;background:var(--s1);border:2px solid var(--border);border-radius:14px;color:var(--t2);font-family:var(--body);font-size:15px;font-weight:700;cursor:pointer;transition:all 0.2s;text-align:center;letter-spacing:1px;}
+.tm-btn.on{border-color:var(--red);color:var(--text);background:var(--redglow);}
 
-.session-log { padding:0 20px; }
-.session-item {
-  display:flex; align-items:center; gap:12px;
-  padding:12px 0;
-  border-bottom:1px solid var(--border);
-}
-.session-dot {
-  width:8px; height:8px; border-radius:50%;
-  background:var(--green); flex-shrink:0;
-}
-.session-info { flex:1; }
-.session-name { font-size:15px; font-weight:600; }
-.session-time { font-family:var(--font-mono); font-size:12px; color:var(--text3); }
-.session-dur {
-  font-family:var(--font-display);
-  font-size:20px; color:var(--text2);
-}
+.timer-controls{display:flex;gap:16px;align-items:center;justify-content:center;margin-top:24px;}
+.tbtn{border-radius:50%;border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all 0.2s;}
+.tbtn:active{transform:scale(0.9);}
+.tbtn-main{width:88px;height:88px;font-size:32px;background:var(--fire);color:#fff;box-shadow:0 4px 24px rgba(230,57,70,0.5);}
+.tbtn-sec{width:60px;height:60px;font-size:24px;background:var(--s2);border:1px solid var(--border);color:var(--t2);}
 
-/* ============================
-   ANALYTICS SCREEN
-============================ */
-#screen-analytics { padding:0 0 80px; }
-.analytics-header { padding:24px 20px 16px; }
-.analytics-title {
-  font-family:var(--font-display);
-  font-size:36px; letter-spacing:3px;
-  color:var(--text);
-}
+.sess-log{padding:24px 22px 0;}
+.sess-item{display:flex;align-items:center;gap:14px;padding:16px 0;border-bottom:1px solid var(--border);}
+.sess-dot{width:10px;height:10px;border-radius:50%;background:var(--green);flex-shrink:0;}
+.sess-info{flex:1;}
+.sess-name{font-size:17px;font-weight:700;}
+.sess-time{font-family:var(--mono);font-size:13px;color:var(--t3);margin-top:2px;}
+.sess-dur{font-family:var(--display);font-size:24px;color:var(--t2);}
 
-.chart-card {
-  background:var(--surface);
-  border:1px solid var(--border);
-  border-radius:16px;
-  padding:20px;
-  margin:0 20px 16px;
-}
-.chart-title {
-  font-family:var(--font-display);
-  font-size:18px; letter-spacing:2px;
-  color:var(--text2); margin-bottom:16px;
-  text-transform:uppercase;
-}
-.bar-chart {
-  display:flex; align-items:flex-end;
-  gap:8px; height:100px;
-}
-.bar-wrap { flex:1; display:flex; flex-direction:column; align-items:center; gap:6px; }
-.bar {
-  width:100%;
-  border-radius:4px 4px 0 0;
-  min-height:4px;
-  transition:height 0.8s cubic-bezier(0.4,0,0.2,1);
-  position:relative;
-}
-.bar-val {
-  font-family:var(--font-mono);
-  font-size:10px; color:var(--text3);
-  text-align:center;
-}
-.bar-day {
-  font-size:11px; font-weight:700; color:var(--text3);
-  text-align:center; font-family:var(--font-mono);
-}
+/* ===== DETOX ===== */
+.detox-header{padding:28px 22px 0;text-align:center;}
+.detox-title{font-family:var(--display);font-size:52px;letter-spacing:5px;color:var(--red);}
+.detox-sub{font-size:15px;color:var(--t3);font-weight:700;letter-spacing:2px;margin-top:6px;}
 
-.summary-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:10px; padding:0 20px 16px; }
-.summary-card {
-  background:var(--surface);
-  border:1px solid var(--border);
-  border-radius:14px;
-  padding:16px 12px;
-  text-align:center;
-}
-.summary-val { font-family:var(--font-display); font-size:30px; }
-.summary-lbl { font-size:11px; color:var(--text3); font-weight:700; letter-spacing:1px; text-transform:uppercase; margin-top:4px; }
+.nofap-box{margin:20px 22px 0;background:var(--s1);border:1px solid var(--border);border-radius:20px;padding:24px;}
+.nofap-label{font-family:var(--display);font-size:13px;letter-spacing:4px;color:var(--t3);text-align:center;margin-bottom:10px;}
+.nofap-num{font-family:var(--display);font-size:80px;color:var(--gold);text-align:center;line-height:1;animation:fireFlicker 3s infinite;}
+.nofap-sublbl{font-family:var(--mono);font-size:12px;color:var(--t3);letter-spacing:3px;text-align:center;margin-top:4px;}
+.nofap-msg{font-size:15px;color:var(--t2);font-weight:600;text-align:center;margin-top:14px;font-style:italic;line-height:1.5;}
+.nofap-btns{display:flex;gap:12px;margin-top:18px;}
 
-/* ============================
-   DOPAMINE DETOX SCREEN
-============================ */
-#screen-detox { padding:0 0 80px; }
-.detox-header {
-  padding:24px 20px 0;
-  text-align:center;
-}
-.detox-title {
-  font-family:var(--font-display);
-  font-size:40px; letter-spacing:4px;
-  color:var(--red); text-transform:uppercase;
-}
-.detox-sub { font-size:14px; color:var(--text3); font-weight:600; margin-top:4px; letter-spacing:1px; }
+.relapse-box{margin:16px 22px 0;background:linear-gradient(135deg,#1a0808,#0d0d0d);border:2px solid rgba(230,57,70,0.4);border-radius:20px;padding:24px;text-align:center;}
+.relapse-num{font-family:var(--display);font-size:80px;color:var(--red);line-height:1;}
+.relapse-lbl{font-family:var(--mono);font-size:12px;color:var(--t3);letter-spacing:3px;margin-bottom:16px;}
 
-.relapse-counter {
-  margin:20px;
-  background:linear-gradient(135deg, #1a0a0a, #0d0d0d);
-  border:2px solid rgba(230,57,70,0.4);
-  border-radius:16px;
-  padding:24px;
-  text-align:center;
-}
-.relapse-num {
-  font-family:var(--font-display);
-  font-size:72px; color:var(--red);
-  line-height:1;
-}
-.relapse-label { font-family:var(--font-mono); font-size:11px; color:var(--text3); letter-spacing:3px; }
-.relapse-btn {
-  margin-top:16px;
-  padding:12px 24px;
-  background:rgba(230,57,70,0.15);
-  border:1px solid var(--red);
-  border-radius:10px;
-  color:var(--red);
-  font-family:var(--font-body);
-  font-size:14px; font-weight:700;
-  cursor:pointer; letter-spacing:2px;
-  text-transform:uppercase;
-  width:100%;
-  transition:all 0.2s;
-}
-.relapse-btn:active { background:rgba(230,57,70,0.3); }
+.app-item{display:flex;align-items:center;gap:16px;padding:18px 0;border-bottom:1px solid var(--border);}
+.app-ico{font-size:34px;width:44px;text-align:center;}
+.app-name{font-size:18px;font-weight:700;}
+.app-limit{font-size:13px;color:var(--t3);font-weight:600;margin-top:2px;}
+.app-status{font-family:var(--mono);font-size:13px;color:var(--green);}
+.app-status.bad{color:var(--red);}
 
-.app-list { padding:0 20px; }
-.detox-app-item {
-  display:flex; align-items:center; gap:14px;
-  padding:14px 0;
-  border-bottom:1px solid var(--border);
-}
-.app-emoji { font-size:28px; width:40px; text-align:center; }
-.app-info { flex:1; }
-.app-name { font-size:16px; font-weight:700; }
-.app-limit { font-size:13px; color:var(--text3); font-weight:500; }
-.app-status { font-family:var(--font-mono); font-size:12px; color:var(--green); }
-.app-status.violated { color:var(--red); }
+/* ===== ANALYTICS ===== */
+.analytics-header{padding:24px 22px 16px;}
+.analytics-title{font-family:var(--display);font-size:40px;letter-spacing:3px;}
+.analytics-sub{font-family:var(--mono);font-size:12px;color:var(--t3);letter-spacing:2px;margin-top:4px;}
 
-.nofap-section {
-  margin:0 20px 20px;
-  background:var(--surface);
-  border:1px solid var(--border);
-  border-radius:16px;
-  padding:20px;
-}
-.nofap-days {
-  font-family:var(--font-display);
-  font-size:64px; color:var(--gold);
-  text-align:center; animation:fireFlicker 3s infinite;
-}
-.nofap-label { font-family:var(--font-mono); font-size:11px; color:var(--text3); letter-spacing:3px; text-align:center; }
-.nofap-msg { font-size:14px; color:var(--text2); font-weight:600; text-align:center; margin-top:12px; font-style:italic; }
-.nofap-controls {
-  display:flex; gap:10px; margin-top:16px;
-}
+.sum-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;padding:0 22px 18px;}
+.sum-card{background:var(--s1);border:1px solid var(--border);border-radius:16px;padding:18px 12px;text-align:center;}
+.sum-val{font-family:var(--display);font-size:34px;}
+.sum-lbl{font-size:12px;color:var(--t3);font-weight:700;letter-spacing:1px;text-transform:uppercase;margin-top:5px;}
 
-/* ============================
-   SHAME SCREEN (overlay)
-============================ */
-#screen-shame {
-  position:fixed; inset:0; z-index:9999;
+.chart-card{background:var(--s1);border:1px solid var(--border);border-radius:18px;padding:22px;margin:0 22px 16px;}
+.chart-title{font-family:var(--display);font-size:18px;letter-spacing:2px;color:var(--t2);margin-bottom:18px;text-transform:uppercase;}
+.bar-chart{display:flex;align-items:flex-end;gap:10px;height:110px;}
+.bwrap{flex:1;display:flex;flex-direction:column;align-items:center;gap:6px;}
+.bar{width:100%;border-radius:5px 5px 0 0;min-height:4px;transition:height 0.8s cubic-bezier(0.4,0,0.2,1);}
+.bval{font-family:var(--mono);font-size:11px;color:var(--t3);text-align:center;}
+.bday{font-size:12px;font-weight:700;color:var(--t3);text-align:center;font-family:var(--mono);}
+
+.habit-bar-item{margin-bottom:14px;}
+.hb-row{display:flex;justify-content:space-between;margin-bottom:6px;}
+.hb-label{font-size:15px;font-weight:600;color:var(--t2);}
+.hb-pct{font-family:var(--mono);font-size:14px;color:var(--text);}
+.hb-track{height:8px;background:var(--s3);border-radius:4px;}
+.hb-fill{height:100%;background:var(--fire);border-radius:4px;transition:width 0.8s ease;}
+
+/* ===== PROFILE ===== */
+.profile-header{padding:28px 22px 20px;text-align:center;background:linear-gradient(180deg,#0d0d0d,var(--bg));}
+.profile-av{width:90px;height:90px;border-radius:50%;background:var(--fire);display:flex;align-items:center;justify-content:center;font-family:var(--display);font-size:44px;color:#fff;margin:0 auto 14px;}
+.profile-name{font-family:var(--display);font-size:40px;letter-spacing:2px;}
+.profile-rank-lbl{font-family:var(--mono);font-size:13px;color:var(--orange);letter-spacing:4px;margin-top:6px;}
+.profile-days{font-family:var(--mono);font-size:12px;color:var(--t3);margin-top:8px;letter-spacing:1px;}
+
+.rank-road{display:flex;flex-direction:column;gap:10px;padding:0 22px 20px;}
+.rr-item{display:flex;align-items:center;gap:18px;padding:18px;background:var(--s1);border:1px solid var(--border);border-radius:16px;}
+.rr-item.cur{border-color:var(--gold);background:rgba(255,214,10,0.05);}
+.rr-item.done{border-color:var(--green);opacity:0.7;}
+.rr-item.locked{opacity:0.3;}
+.rr-ico{font-size:32px;width:40px;text-align:center;}
+.rr-name{font-family:var(--display);font-size:24px;letter-spacing:2px;}
+.rr-req{font-size:13px;color:var(--t3);font-weight:600;margin-top:2px;}
+.rr-badge{margin-left:auto;font-family:var(--mono);font-size:12px;padding:6px 12px;border-radius:8px;letter-spacing:1px;white-space:nowrap;}
+.rr-item.cur .rr-badge{background:rgba(255,214,10,0.15);color:var(--gold);}
+.rr-item.done .rr-badge{background:rgba(6,214,160,0.15);color:var(--green);}
+.rr-item.locked .rr-badge{background:var(--s3);color:var(--t3);}
+
+.settings-sec{padding:0 22px 20px;}
+.s-item{display:flex;align-items:center;gap:16px;padding:20px 0;border-bottom:1px solid var(--border);cursor:pointer;}
+.s-ico{font-size:26px;width:36px;text-align:center;}
+.s-lbl{flex:1;font-size:18px;font-weight:700;}
+.s-arr{color:var(--t3);font-size:22px;}
+
+/* ===== SHAME ===== */
+#shame{
+  position:fixed;inset:0;z-index:9999;
   background:rgba(0,0,0,0.97);
-  display:none; flex-direction:column;
-  align-items:center; justify-content:center;
-  text-align:center; padding:40px 24px;
-  animation:fadeIn 0.3s ease;
+  display:none;flex-direction:column;
+  align-items:center;justify-content:center;
+  text-align:center;padding:40px 28px;
 }
-#screen-shame.active { display:flex; }
-.shame-icon { font-size:80px; margin-bottom:24px; animation:shake 0.5s ease; }
-.shame-title {
-  font-family:var(--font-display);
-  font-size:56px; color:var(--red);
-  line-height:1; margin-bottom:16px;
-  letter-spacing:2px;
-}
-.shame-msg {
-  font-size:18px; color:var(--text2);
-  line-height:1.6; margin-bottom:24px;
-  font-weight:500; max-width:320px;
-}
-.shame-stats {
-  background:rgba(230,57,70,0.1);
-  border:1px solid rgba(230,57,70,0.3);
-  border-radius:12px;
-  padding:20px; width:100%;
-  margin-bottom:32px;
-}
-.shame-stat { display:flex; justify-content:space-between; padding:8px 0; border-bottom:1px solid rgba(255,255,255,0.05); }
-.shame-stat:last-child { border-bottom:none; }
-.shame-stat-k { color:var(--text3); font-size:14px; font-weight:600; letter-spacing:1px; }
-.shame-stat-v { color:var(--text); font-family:var(--font-mono); font-size:14px; }
+#shame.show{display:flex;}
+.shame-ico{font-size:90px;margin-bottom:28px;animation:shake 0.6s ease;}
+.shame-title{font-family:var(--display);font-size:64px;color:var(--red);line-height:1;margin-bottom:18px;letter-spacing:2px;}
+.shame-msg{font-size:19px;color:var(--t2);line-height:1.7;margin-bottom:28px;font-weight:500;max-width:340px;}
+.shame-stats{background:rgba(230,57,70,0.08);border:1px solid rgba(230,57,70,0.3);border-radius:16px;padding:22px;width:100%;margin-bottom:32px;}
+.shame-row{display:flex;justify-content:space-between;padding:10px 0;border-bottom:1px solid rgba(255,255,255,0.05);}
+.shame-row:last-child{border-bottom:none;}
+.shame-k{color:var(--t3);font-size:15px;font-weight:700;letter-spacing:1px;}
+.shame-v{color:var(--text);font-family:var(--mono);font-size:15px;}
+.shame-quote{margin-top:18px;font-size:14px;color:var(--t3);font-weight:600;letter-spacing:1px;font-style:italic;}
 
-/* ============================
-   SETTINGS / PROFILE SCREEN
-============================ */
-#screen-profile { padding:0 0 80px; }
-.profile-header {
-  padding:24px 20px;
-  text-align:center;
-  background:linear-gradient(180deg, #0d0d0d 0%, var(--bg) 100%);
-}
-.profile-avatar {
-  width:80px; height:80px; border-radius:50%;
-  background:var(--fire);
-  display:flex; align-items:center; justify-content:center;
-  font-size:36px; margin:0 auto 12px;
-  font-family:var(--font-display);
-  font-size:40px; color:#fff;
-}
-.profile-username {
-  font-family:var(--font-display);
-  font-size:36px; letter-spacing:2px;
-}
-.profile-rank {
-  font-family:var(--font-mono);
-  font-size:12px; color:var(--orange);
-  letter-spacing:4px;
-}
+/* MODAL */
+.modal{position:fixed;inset:0;z-index:8000;background:rgba(0,0,0,0.85);display:none;align-items:flex-end;backdrop-filter:blur(6px);}
+.modal.show{display:flex;}
+.modal-sheet{width:100%;background:var(--s1);border-radius:28px 28px 0 0;padding:32px 28px 50px;animation:slideUp 0.3s ease;max-height:80vh;overflow-y:auto;}
+.modal-handle{width:44px;height:5px;background:var(--s3);border-radius:3px;margin:0 auto 24px;}
+.modal-title{font-family:var(--display);font-size:32px;letter-spacing:2px;margin-bottom:22px;}
+.modal-input{width:100%;padding:18px 20px;background:var(--bg);border:1px solid var(--border);border-radius:14px;color:var(--text);font-size:18px;font-family:var(--body);font-weight:600;outline:none;margin-bottom:14px;}
+.modal-input:focus{border-color:var(--red);}
+.modal-btns{display:flex;gap:12px;margin-top:8px;}
+.mb{flex:1;padding:18px;border-radius:14px;border:none;font-family:var(--display);font-size:22px;letter-spacing:1px;cursor:pointer;}
+.mb-fire{background:var(--fire);color:#fff;}
+.mb-cancel{background:var(--s3);color:var(--t2);}
 
-.rank-progress-section { padding:0 20px 20px; }
-.rank-roadmap { display:flex; flex-direction:column; gap:8px; }
-.rank-step {
-  display:flex; align-items:center; gap:16px;
-  padding:14px 16px;
-  background:var(--surface);
-  border:1px solid var(--border);
-  border-radius:12px;
-  transition:all 0.2s;
-}
-.rank-step.current { border-color:var(--gold); background:rgba(255,214,10,0.05); }
-.rank-step.completed { border-color:var(--green); opacity:0.7; }
-.rank-step.locked { opacity:0.35; }
-.rank-step-icon { font-size:28px; width:36px; text-align:center; }
-.rank-step-name { font-family:var(--font-display); font-size:22px; letter-spacing:2px; color:var(--text); }
-.rank-step-req { font-size:12px; color:var(--text3); font-weight:600; }
-.rank-step-badge {
-  margin-left:auto;
-  font-family:var(--font-mono);
-  font-size:11px;
-  padding:4px 10px;
-  border-radius:6px;
-  letter-spacing:1px;
-}
-.rank-step.current .rank-step-badge { background:rgba(255,214,10,0.15); color:var(--gold); }
-.rank-step.completed .rank-step-badge { background:rgba(6,214,160,0.15); color:var(--green); }
-.rank-step.locked .rank-step-badge { background:var(--surface3); color:var(--text3); }
-
-.settings-list { padding:0 20px; }
-.settings-item {
-  display:flex; align-items:center; gap:14px;
-  padding:16px 0;
-  border-bottom:1px solid var(--border);
-  cursor:pointer;
-}
-.settings-icon { font-size:22px; width:32px; text-align:center; }
-.settings-label { flex:1; font-size:16px; font-weight:600; }
-.settings-arrow { color:var(--text3); font-size:18px; }
-
-/* ============================
-   MODALS
-============================ */
-.modal-overlay {
-  position:fixed; inset:0; z-index:8000;
-  background:rgba(0,0,0,0.85);
-  display:none; align-items:flex-end;
-  backdrop-filter:blur(4px);
-}
-.modal-overlay.active { display:flex; }
-.modal-sheet {
-  width:100%;
-  background:var(--surface);
-  border-radius:24px 24px 0 0;
-  padding:28px 24px 40px;
-  animation:slideUp 0.3s ease;
-  max-height:80vh;
-  overflow-y:auto;
-}
-.modal-handle {
-  width:40px; height:4px;
-  background:var(--surface3);
-  border-radius:2px;
-  margin:0 auto 20px;
-}
-.modal-title {
-  font-family:var(--font-display);
-  font-size:28px; letter-spacing:2px;
-  margin-bottom:20px; color:var(--text);
-}
-.modal-input {
-  width:100%; padding:14px 16px;
-  background:var(--bg);
-  border:1px solid var(--border);
-  border-radius:12px;
-  color:var(--text); font-size:16px;
-  font-family:var(--font-body); font-weight:600;
-  outline:none; margin-bottom:12px;
-}
-.modal-input:focus { border-color:var(--red); }
-.modal-btns { display:flex; gap:10px; margin-top:8px; }
-.modal-btn {
-  flex:1; padding:14px;
-  border-radius:12px; border:none;
-  font-family:var(--font-display);
-  font-size:18px; letter-spacing:1px;
-  cursor:pointer; transition:all 0.15s;
-}
-.modal-btn-primary { background:var(--fire); color:#fff; }
-.modal-btn-cancel { background:var(--surface3); color:var(--text2); }
-
-/* ============================
-   NOTIFICATIONS TOAST
-============================ */
-.toast {
-  position:fixed; top:20px; left:50%; transform:translateX(-50%) translateY(-80px);
-  z-index:9990;
-  background:var(--surface);
-  border:1px solid var(--border);
-  border-radius:12px;
-  padding:14px 20px;
-  max-width:340px; width:calc(100% - 40px);
-  display:flex; align-items:center; gap:12px;
+/* TOAST */
+.toast{
+  position:fixed;top:24px;left:50%;transform:translateX(-50%) translateY(-100px);
+  z-index:9990;background:var(--s1);border:1px solid var(--border);
+  border-radius:16px;padding:18px 24px;
+  max-width:360px;width:calc(100% - 44px);
+  display:flex;align-items:center;gap:14px;
   transition:transform 0.3s cubic-bezier(0.4,0,0.2,1);
-  box-shadow:0 8px 32px rgba(0,0,0,0.5);
+  box-shadow:0 8px 40px rgba(0,0,0,0.6);
 }
-.toast.show { transform:translateX(-50%) translateY(0); }
-.toast-icon { font-size:20px; }
-.toast-text { font-size:14px; font-weight:600; line-height:1.4; }
-.toast-bar {
-  position:absolute; bottom:0; left:0;
-  height:2px; background:var(--fire);
-  border-radius:0 0 12px 12px;
-  width:100%;
-  animation:progressFill 3s linear forwards;
-  --w: 0%;
-}
+.toast.show{transform:translateX(-50%) translateY(0);}
+.toast-ico{font-size:24px;}
+.toast-txt{font-size:16px;font-weight:700;line-height:1.4;}
+.toast-bar{position:absolute;bottom:0;left:0;height:3px;background:var(--fire);border-radius:0 0 16px 16px;animation:tb 3s linear forwards;}
+@keyframes tb{from{width:100%}to{width:0%}}
 
-/* ============================
-   MISC UTILITIES
-============================ */
-.flex-row { display:flex; align-items:center; gap:10px; }
-.mt-12 { margin-top:12px; }
-.mt-20 { margin-top:20px; }
-.px-20 { padding:0 20px; }
-.text-center { text-align:center; }
-.separator { height:1px; background:var(--border); margin:0 20px; }
+/* EMPTY STATE */
+.empty{text-align:center;padding:48px 24px;}
+.empty-ico{font-size:56px;margin-bottom:14px;}
+.empty-txt{font-size:17px;font-weight:600;color:var(--t3);line-height:1.6;}
 
-.loading-dots {
-  display:inline-flex; gap:4px; align-items:center;
-}
-.loading-dot {
-  width:6px; height:6px; border-radius:50%;
-  background:var(--red);
-  animation:pulse 1.2s ease infinite;
-}
-.loading-dot:nth-child(2) { animation-delay:0.2s; }
-.loading-dot:nth-child(3) { animation-delay:0.4s; }
-
-.empty-state {
-  text-align:center; padding:40px 24px;
-  color:var(--text3);
-}
-.empty-state-icon { font-size:48px; margin-bottom:12px; }
-.empty-state-text { font-size:16px; font-weight:600; line-height:1.5; }
-
-/* Fire particles */
-.fire-particles {
-  position:absolute; inset:0; pointer-events:none; overflow:hidden;
-}
-.particle {
-  position:absolute; bottom:0;
-  width:4px; height:4px; border-radius:50%;
-  background:var(--orange);
-  animation:float var(--dur, 2s) ease-in infinite var(--delay, 0s);
-  opacity:0;
-}
-@keyframes float {
-  0%{transform:translateY(0) scale(1);opacity:0.8}
-  100%{transform:translateY(-60px) scale(0);opacity:0}
-}
-
-/* Scrollable without navbar overlap */
-.scroll-pad { height:80px; }
+/* UTILS */
+.px22{padding:0 22px;}
+.mt16{margin-top:16px;}
+.mt20{margin-top:20px;}
+.mt24{margin-top:24px;}
 </style>
 </head>
 <body>
-
 <div id="app">
 
-  <!-- ======= ONBOARDING ======= -->
-  <div id="screen-onboarding" class="screen active">
-    <!-- Slide 1: Welcome -->
-    <div class="onboard-slide active" id="ob-slide-1">
-      <div class="ob-icon">🔱</div>
-      <div class="ob-title">MONK MODE</div>
-      <div class="ob-sub">The app built for men who refuse to be average. Build discipline. Destroy weakness.</div>
-      <div class="ob-dots">
-        <div class="ob-dot active"></div>
-        <div class="ob-dot"></div>
-        <div class="ob-dot"></div>
-        <div class="ob-dot"></div>
-      </div>
-      <button class="btn btn-primary" onclick="nextObSlide()">ENTER THE MODE</button>
+<!-- ONBOARDING -->
+<div id="screen-onboarding" class="screen active" style="padding-bottom:0;">
+  <div class="ob-slide on" id="ob1">
+    <div class="ob-emoji">🔱</div>
+    <div class="ob-title">MONK MODE</div>
+    <div class="ob-desc">Built for men who refuse to be average. Build discipline. Destroy weakness. Level up your life.</div>
+    <div class="ob-dots"><div class="ob-dot on"></div><div class="ob-dot"></div><div class="ob-dot"></div><div class="ob-dot"></div></div>
+    <button class="btn btn-fire" onclick="obNext()">ENTER THE MODE</button>
+  </div>
+  <div class="ob-slide" id="ob2">
+    <div class="ob-emoji">📱</div>
+    <div class="ob-title">THE TRAP</div>
+    <div class="ob-desc">Dopamine addiction, endless scrolling, broken promises. Every wasted day is gone forever.</div>
+    <div class="ob-dots"><div class="ob-dot"></div><div class="ob-dot on"></div><div class="ob-dot"></div><div class="ob-dot"></div></div>
+    <button class="btn btn-fire" onclick="obNext()">I'M DONE WASTING TIME</button>
+  </div>
+  <div class="ob-slide" id="ob3">
+    <div class="ob-emoji">🎯</div>
+    <div class="ob-title">YOUR MISSION</div>
+    <div class="ob-desc">What are you fighting for?</div>
+    <div class="ob-goals">
+      <div class="og" onclick="togGoal(this,'discipline')">⚔️ Discipline</div>
+      <div class="og" onclick="togGoal(this,'focus')">🧠 Deep Focus</div>
+      <div class="og" onclick="togGoal(this,'fitness')">💪 Fitness</div>
+      <div class="og" onclick="togGoal(this,'nofap')">🔥 NoFap</div>
+      <div class="og" onclick="togGoal(this,'money')">💰 Wealth</div>
+      <div class="og" onclick="togGoal(this,'sleep')">😴 Sleep</div>
     </div>
+    <div class="ob-dots"><div class="ob-dot"></div><div class="ob-dot"></div><div class="ob-dot on"></div><div class="ob-dot"></div></div>
+    <button class="btn btn-fire" onclick="obNext()">THESE ARE MY TARGETS</button>
+  </div>
+  <div class="ob-slide" id="ob4">
+    <div class="ob-emoji">⚡</div>
+    <div class="ob-title">IDENTIFY</div>
+    <div class="ob-desc">What do they call you, warrior?</div>
+    <input type="text" class="ob-input" id="ob-name" placeholder="Enter your name..." maxlength="20">
+    <div style="font-size:15px;color:var(--t3);margin-bottom:28px;font-weight:600;line-height:1.5;">No going back. Discipline starts the moment you press this button.</div>
+    <div class="ob-dots"><div class="ob-dot"></div><div class="ob-dot"></div><div class="ob-dot"></div><div class="ob-dot on"></div></div>
+    <button class="btn btn-fire" onclick="obDone()">BEGIN MY JOURNEY 🔱</button>
+  </div>
+</div>
 
-    <!-- Slide 2: The Problem -->
-    <div class="onboard-slide" id="ob-slide-2">
-      <div class="ob-icon">📱</div>
-      <div class="ob-title">THE TRAP</div>
-      <div class="ob-sub">Dopamine addiction, endless scrolling, broken promises to yourself. Every day wasted is a day you can't get back.</div>
-      <div class="ob-dots">
-        <div class="ob-dot"></div>
-        <div class="ob-dot active"></div>
-        <div class="ob-dot"></div>
-        <div class="ob-dot"></div>
-      </div>
-      <button class="btn btn-primary" onclick="nextObSlide()">I'M READY TO CHANGE</button>
+<!-- HOME -->
+<div id="screen-home" class="screen">
+  <div class="home-top">
+    <div>
+      <div class="home-greet">RISE AND GRIND</div>
+      <div class="home-name" id="hname">WARRIOR</div>
     </div>
-
-    <!-- Slide 3: Goals -->
-    <div class="onboard-slide" id="ob-slide-3">
-      <div class="ob-icon">🎯</div>
-      <div class="ob-title">YOUR MISSION</div>
-      <div class="ob-sub">What are you fighting for?</div>
-      <div class="ob-goal-grid">
-        <div class="ob-goal-btn" onclick="toggleGoal(this,'discipline')">⚔️ Discipline</div>
-        <div class="ob-goal-btn" onclick="toggleGoal(this,'focus')">🧠 Deep Focus</div>
-        <div class="ob-goal-btn" onclick="toggleGoal(this,'fitness')">💪 Fitness</div>
-        <div class="ob-goal-btn" onclick="toggleGoal(this,'nofap')">🔥 NoFap</div>
-        <div class="ob-goal-btn" onclick="toggleGoal(this,'money')">💰 Wealth</div>
-        <div class="ob-goal-btn" onclick="toggleGoal(this,'sleep')">😴 Sleep</div>
+    <div class="home-date" id="hdate"></div>
+  </div>
+  <div class="score-wrap">
+    <div class="score-ring-box">
+      <svg width="210" height="210" viewBox="0 0 210 210">
+        <defs>
+          <linearGradient id="sg" x1="0%" y1="0%" x2="100%" y2="0%">
+            <stop offset="0%" style="stop-color:#e63946"/>
+            <stop offset="100%" style="stop-color:#ff6b35"/>
+          </linearGradient>
+        </defs>
+        <circle class="ring-bg" cx="105" cy="105" r="90"/>
+        <circle class="ring-fill" id="score-ring" cx="105" cy="105" r="90"/>
+      </svg>
+      <div class="score-center">
+        <div class="score-num" id="score-num">0</div>
+        <div class="score-lbl">MONK SCORE</div>
+        <div class="score-rank-txt" id="score-rank-txt">BROKEN</div>
       </div>
-      <div class="ob-dots">
-        <div class="ob-dot"></div>
-        <div class="ob-dot"></div>
-        <div class="ob-dot active"></div>
-        <div class="ob-dot"></div>
-      </div>
-      <button class="btn btn-primary" onclick="nextObSlide()">THESE ARE MY TARGETS</button>
-    </div>
-
-    <!-- Slide 4: Name -->
-    <div class="onboard-slide" id="ob-slide-4">
-      <div class="ob-icon">⚡</div>
-      <div class="ob-title">IDENTIFY</div>
-      <div class="ob-sub">What do you call yourself, warrior?</div>
-      <input type="text" class="ob-name-input" id="ob-name-input" placeholder="Enter your name..." maxlength="20">
-      <div style="font-size:13px;color:var(--text3);margin-bottom:24px;font-weight:600;">Discipline starts with commitment. There's no going back.</div>
-      <div class="ob-dots">
-        <div class="ob-dot"></div>
-        <div class="ob-dot"></div>
-        <div class="ob-dot"></div>
-        <div class="ob-dot active"></div>
-      </div>
-      <button class="btn btn-primary" onclick="completeOnboarding()">BEGIN MY JOURNEY 🔱</button>
     </div>
   </div>
+  <div class="streak-row">
+    <div class="sc"><span class="sc-emoji">🔥</span><div class="sc-val fire" id="h-streak">0</div><div class="sc-lbl">Streak</div></div>
+    <div class="sc"><span class="sc-emoji">⚡</span><div class="sc-val" id="h-best">0</div><div class="sc-lbl">Best</div></div>
+    <div class="sc"><span class="sc-emoji">✅</span><div class="sc-val" id="h-perfect">0</div><div class="sc-lbl">Perfect</div></div>
+  </div>
+  <div class="rank-badge" onclick="go('profile')">
+    <div class="rb-icon" id="h-rank-ico">💀</div>
+    <div class="rb-info">
+      <div class="rb-name" id="h-rank-name">BROKEN</div>
+      <div class="rb-sub" id="h-rank-sub">Rise from zero. Your journey begins now.</div>
+      <div class="rb-bar"><div class="rb-fill" id="h-rank-fill" style="width:3%"></div></div>
+    </div>
+  </div>
+  <div class="ci-cta" onclick="go('checkin')">
+    <div class="cta-ico">📋</div>
+    <div class="cta-txt">
+      <div class="cta-title">DAILY CHECK-IN</div>
+      <div class="cta-sub" id="cta-status">Not done today • Tap to log</div>
+    </div>
+    <div class="cta-arrow">›</div>
+  </div>
+  <div class="sec-title">TODAY'S LOG</div>
+  <div class="qgrid">
+    <div class="qcard" onclick="go('checkin')">
+      <div class="qc-dot pend" id="qs-wake"></div>
+      <div class="qc-ico">🌅</div>
+      <div class="qc-val" id="q-wake">--:--</div>
+      <div class="qc-lbl">Wake Time</div>
+    </div>
+    <div class="qcard" onclick="go('focus')">
+      <div class="qc-dot pend" id="qs-focus"></div>
+      <div class="qc-ico">🎯</div>
+      <div class="qc-val" id="q-focus">0m</div>
+      <div class="qc-lbl">Focus Today</div>
+    </div>
+    <div class="qcard" onclick="go('checkin')">
+      <div class="qc-dot pend" id="qs-workout"></div>
+      <div class="qc-ico">💪</div>
+      <div class="qc-val" id="q-workout">NO</div>
+      <div class="qc-lbl">Workout</div>
+    </div>
+    <div class="qcard" onclick="go('checkin')">
+      <div class="qc-dot pend" id="qs-water"></div>
+      <div class="qc-ico">💧</div>
+      <div class="qc-val" id="q-water">0L</div>
+      <div class="qc-lbl">Water</div>
+    </div>
+  </div>
+</div>
 
-  <!-- ======= HOME ======= -->
-  <div id="screen-home" class="screen" style="overflow-y:auto;">
-    <div class="home-header">
+<!-- CHECK-IN -->
+<div id="screen-checkin" class="screen">
+  <div class="ci-header">
+    <div style="display:flex;align-items:center;">
+      <button class="ci-back" onclick="go('home')">‹</button>
       <div>
-        <div class="home-greeting">RISE AND GRIND</div>
-        <div class="home-name" id="home-name">WARRIOR</div>
-      </div>
-      <div class="home-date" id="home-date"></div>
-    </div>
-
-    <!-- Monk Score Ring -->
-    <div class="score-section">
-      <div class="score-ring-wrap">
-        <svg width="200" height="200" viewBox="0 0 200 200">
-          <defs>
-            <linearGradient id="scoreGrad" x1="0%" y1="0%" x2="100%" y2="0%">
-              <stop offset="0%" style="stop-color:#e63946"/>
-              <stop offset="100%" style="stop-color:#ff6b35"/>
-            </linearGradient>
-          </defs>
-          <circle class="score-ring-bg" cx="100" cy="100" r="90"/>
-          <circle class="score-ring-fill" id="score-ring" cx="100" cy="100" r="90"/>
-        </svg>
-        <div class="score-center">
-          <div class="score-num" id="score-num">0</div>
-          <div class="score-label">MONK SCORE</div>
-          <div class="score-rank" id="score-rank-label">BROKEN</div>
-        </div>
-      </div>
-    </div>
-
-    <!-- Streak Row -->
-    <div class="streak-row">
-      <div class="streak-card">
-        <span class="streak-emoji">🔥</span>
-        <div class="streak-val fire" id="home-streak">0</div>
-        <div class="streak-lbl">Day Streak</div>
-      </div>
-      <div class="streak-card">
-        <span class="streak-emoji">⚡</span>
-        <div class="streak-val" id="home-best">0</div>
-        <div class="streak-lbl">Best Ever</div>
-      </div>
-      <div class="streak-card">
-        <span class="streak-emoji">✅</span>
-        <div class="streak-val" id="home-perfect">0</div>
-        <div class="streak-lbl">Perfect Days</div>
-      </div>
-    </div>
-
-    <!-- Rank Badge -->
-    <div class="rank-badge" onclick="navigateTo('profile')">
-      <div class="rank-icon" id="home-rank-icon">💀</div>
-      <div class="rank-info">
-        <div class="rank-name" id="home-rank-name">BROKEN</div>
-        <div class="rank-sub" id="home-rank-sub">Rise from zero. Your journey begins now.</div>
-        <div class="rank-progress">
-          <div class="rank-fill" id="home-rank-fill" style="width:5%"></div>
-        </div>
-      </div>
-    </div>
-
-    <!-- Check-in CTA -->
-    <div class="checkin-cta" onclick="navigateTo('checkin')">
-      <div class="cta-icon">📋</div>
-      <div class="cta-text">
-        <div class="cta-title">DAILY CHECK-IN</div>
-        <div class="cta-sub" id="checkin-status-text">Not done today • Tap to log</div>
-      </div>
-      <div class="cta-arrow">›</div>
-    </div>
-
-    <!-- Quick Stats -->
-    <div class="section-title">TODAY'S LOG</div>
-    <div class="quick-grid">
-      <div class="quick-card" onclick="navigateTo('checkin')">
-        <div class="qc-icon">🌅</div>
-        <div class="qc-val" id="qc-wake">--:--</div>
-        <div class="qc-lbl">Wake Time</div>
-        <div class="qc-status pending" id="qcs-wake"></div>
-      </div>
-      <div class="quick-card" onclick="navigateTo('focus')">
-        <div class="qc-icon">🎯</div>
-        <div class="qc-val" id="qc-focus">0h</div>
-        <div class="qc-lbl">Focus Hours</div>
-        <div class="qc-status pending" id="qcs-focus"></div>
-      </div>
-      <div class="quick-card" onclick="navigateTo('checkin')">
-        <div class="qc-icon">💪</div>
-        <div class="qc-val" id="qc-workout">NO</div>
-        <div class="qc-lbl">Workout</div>
-        <div class="qc-status pending" id="qcs-workout"></div>
-      </div>
-      <div class="quick-card" onclick="navigateTo('checkin')">
-        <div class="qc-icon">💧</div>
-        <div class="qc-val" id="qc-water">0L</div>
-        <div class="qc-lbl">Water</div>
-        <div class="qc-status pending" id="qcs-water"></div>
-      </div>
-    </div>
-
-    <div class="scroll-pad"></div>
-  </div>
-
-  <!-- ======= CHECK-IN ======= -->
-  <div id="screen-checkin" class="screen" style="overflow-y:auto;">
-    <div class="checkin-header">
-      <div style="display:flex;align-items:center;gap:12px;margin-bottom:8px;">
-        <button onclick="navigateTo('home')" style="background:none;border:none;color:var(--text2);font-size:24px;cursor:pointer;">‹</button>
-        <div>
-          <div class="checkin-title">CHECK-IN</div>
-          <div class="checkin-sub" id="ci-date">TODAY'S LOG</div>
-        </div>
-      </div>
-    </div>
-
-    <!-- Sleep / Wake -->
-    <div class="ci-section">
-      <div class="ci-section-title">⏰ Sleep Schedule</div>
-      <div class="ci-time-row">
-        <div>
-          <label style="font-size:12px;color:var(--text3);font-weight:700;letter-spacing:1px;display:block;margin-bottom:6px;">WAKE TIME</label>
-          <input type="time" class="ci-input" id="ci-wake" style="margin-bottom:0;">
-        </div>
-        <div>
-          <label style="font-size:12px;color:var(--text3);font-weight:700;letter-spacing:1px;display:block;margin-bottom:6px;">SLEEP TIME</label>
-          <input type="time" class="ci-input" id="ci-sleep" style="margin-bottom:0;">
-        </div>
-      </div>
-    </div>
-
-    <!-- Physical -->
-    <div class="ci-section">
-      <div class="ci-section-title">💪 Physical</div>
-      <div class="ci-row">
-        <div class="ci-row-icon">🏋️</div>
-        <div class="ci-row-label">Workout</div>
-        <div class="ci-toggle" id="tog-workout" onclick="toggleTog('workout')"></div>
-      </div>
-      <div class="ci-row">
-        <div class="ci-row-icon">🚿</div>
-        <div class="ci-row-label">Cold Shower</div>
-        <div class="ci-toggle" id="tog-cold" onclick="toggleTog('cold')"></div>
-      </div>
-      <div>
-        <label style="font-size:12px;color:var(--text3);font-weight:700;letter-spacing:1px;display:flex;justify-content:space-between;padding:0 0 8px;"><span>💧 Water (Litres)</span><span id="water-val" style="color:var(--text);">2.0L</span></label>
-        <input type="range" class="ci-slider" id="ci-water" min="0" max="5" step="0.5" value="2" oninput="updateSlider('water', this.value, 'L')">
-      </div>
-    </div>
-
-    <!-- Mental -->
-    <div class="ci-section">
-      <div class="ci-section-title">🧠 Mental</div>
-      <div>
-        <label style="font-size:12px;color:var(--text3);font-weight:700;letter-spacing:1px;display:flex;justify-content:space-between;padding:0 0 8px;"><span>📚 Study/Work Hours</span><span id="study-val" style="color:var(--text);">0h</span></label>
-        <input type="range" class="ci-slider" id="ci-study" min="0" max="16" step="0.5" value="0" oninput="updateSlider('study', this.value, 'h')">
-      </div>
-      <div class="ci-row" style="margin-top:10px;">
-        <div class="ci-row-icon">🧘</div>
-        <div class="ci-row-label">Meditation</div>
-        <div class="ci-toggle" id="tog-meditate" onclick="toggleTog('meditate')"></div>
-      </div>
-      <div class="ci-row">
-        <div class="ci-row-icon">📖</div>
-        <div class="ci-row-label">Reading</div>
-        <div class="ci-toggle" id="tog-reading" onclick="toggleTog('reading')"></div>
-      </div>
-    </div>
-
-    <!-- Lifestyle -->
-    <div class="ci-section">
-      <div class="ci-section-title">⚡ Lifestyle</div>
-      <div class="ci-row">
-        <div class="ci-row-icon">🔥</div>
-        <div class="ci-row-label">NoFap — Held Streak</div>
-        <div class="ci-toggle" id="tog-nofap" onclick="toggleTog('nofap')"></div>
-      </div>
-      <div>
-        <label style="font-size:12px;color:var(--text3);font-weight:700;letter-spacing:1px;display:flex;justify-content:space-between;padding:0 0 8px;margin-top:10px;"><span>📱 Screen Time</span><span id="screen-val" style="color:var(--text);">4h</span></label>
-        <input type="range" class="ci-slider" id="ci-screen" min="0" max="16" step="0.5" value="4" oninput="updateSlider('screen', this.value, 'h')">
-      </div>
-      <div>
-        <label style="font-size:12px;color:var(--text3);font-weight:700;letter-spacing:1px;display:flex;justify-content:space-between;padding:0 0 8px;margin-top:10px;"><span>💰 Money Earned (₹)</span><span id="money-val" style="color:var(--text);">₹0</span></label>
-        <input type="range" class="ci-slider" id="ci-money" min="0" max="10000" step="100" value="0" oninput="updateSlider('money', this.value, '₹', true)">
-      </div>
-    </div>
-
-    <!-- Mood -->
-    <div class="ci-section">
-      <div class="ci-section-title">😤 Mood</div>
-      <div class="mood-grid">
-        <div class="mood-btn" onclick="selectMood('crushed')"><span class="mood-emoji">😤</span>Crushed</div>
-        <div class="mood-btn" onclick="selectMood('strong')"><span class="mood-emoji">💪</span>Strong</div>
-        <div class="mood-btn" onclick="selectMood('focused')"><span class="mood-emoji">🎯</span>Focused</div>
-        <div class="mood-btn" onclick="selectMood('tired')"><span class="mood-emoji">😪</span>Tired</div>
-        <div class="mood-btn" onclick="selectMood('meh')"><span class="mood-emoji">😑</span>Meh</div>
-      </div>
-    </div>
-
-    <!-- Notes -->
-    <div class="ci-section" style="padding-bottom:0;">
-      <div class="ci-section-title">📝 Daily Note</div>
-      <textarea class="ci-input" id="ci-note" rows="3" placeholder="What did you accomplish today?" style="resize:none;"></textarea>
-    </div>
-
-    <!-- Submit -->
-    <div class="submit-section">
-      <button class="btn btn-primary" onclick="submitCheckin()">SUBMIT CHECK-IN 🔱</button>
-    </div>
-    <div class="scroll-pad"></div>
-  </div>
-
-  <!-- ======= STREAK ======= -->
-  <div id="screen-streak" class="screen" style="overflow-y:auto;">
-    <div class="streak-header">
-      <div style="font-family:var(--font-display);font-size:14px;letter-spacing:4px;color:var(--text3);">CONSISTENCY IS KING</div>
-      <div class="streak-big" id="streak-main-num">0</div>
-      <div class="streak-big-label">DAY STREAK 🔥</div>
-    </div>
-
-    <div class="streak-stats-grid">
-      <div class="stat-card">
-        <div class="stat-val gold" id="st-best">0</div>
-        <div class="stat-lbl">Best Streak</div>
-      </div>
-      <div class="stat-card">
-        <div class="stat-val green" id="st-perfect">0</div>
-        <div class="stat-lbl">Perfect Days</div>
-      </div>
-      <div class="stat-card">
-        <div class="stat-val" id="st-total">0</div>
-        <div class="stat-lbl">Total Days</div>
-      </div>
-      <div class="stat-card">
-        <div class="stat-val red" id="st-missed">0</div>
-        <div class="stat-lbl">Days Missed</div>
-      </div>
-    </div>
-
-    <!-- Calendar -->
-    <div class="calendar-wrap">
-      <div class="section-title" style="padding:0 0 4px;">THIS MONTH</div>
-      <div class="cal-grid" id="cal-labels"></div>
-      <div class="cal-grid" id="cal-grid"></div>
-    </div>
-
-    <div class="scroll-pad"></div>
-  </div>
-
-  <!-- ======= FOCUS TIMER ======= -->
-  <div id="screen-focus" class="screen" style="overflow-y:auto;">
-    <div class="focus-header">
-      <div class="focus-title">DEEP WORK</div>
-      <div style="font-family:var(--font-mono);font-size:12px;color:var(--text3);">
-        TOTAL: <span id="focus-total-today" style="color:var(--orange);">0h 0m</span>
-      </div>
-    </div>
-
-    <!-- Timer Ring -->
-    <div class="timer-section">
-      <div class="timer-ring-wrap">
-        <svg width="240" height="240" viewBox="0 0 240 240">
-          <defs>
-            <linearGradient id="timerGrad" x1="0%" y1="0%" x2="100%" y2="0%">
-              <stop offset="0%" style="stop-color:#e63946"/>
-              <stop offset="100%" style="stop-color:#ff6b35"/>
-            </linearGradient>
-          </defs>
-          <circle class="timer-ring-bg" cx="120" cy="120" r="110"/>
-          <circle class="timer-ring-fill" id="timer-ring" cx="120" cy="120" r="110"/>
-        </svg>
-        <div class="timer-center">
-          <div class="timer-display" id="timer-display">25:00</div>
-          <div class="timer-mode-label" id="timer-phase-label">POMODORO</div>
-          <div class="timer-session-num" id="timer-session-num">SESSION #1</div>
-        </div>
-      </div>
-
-      <!-- Mode selector -->
-      <div class="timer-modes" style="width:100%;">
-        <div class="timer-mode-btn active" onclick="setTimerMode('pomodoro',this)" data-work="1500" data-break="300">POMO</div>
-        <div class="timer-mode-btn" onclick="setTimerMode('long',this)" data-work="5400" data-break="900">DEEP</div>
-        <div class="timer-mode-btn" onclick="setTimerMode('quick',this)" data-work="900" data-break="180">SPRINT</div>
-        <div class="timer-mode-btn" onclick="setTimerMode('custom',this)">CUSTOM</div>
-      </div>
-
-      <!-- Controls -->
-      <div class="timer-controls">
-        <button class="timer-btn timer-btn-secondary" onclick="resetTimer()">↺</button>
-        <button class="timer-btn timer-btn-main" id="timer-start-btn" onclick="toggleTimer()">▶</button>
-        <button class="timer-btn timer-btn-secondary" onclick="skipTimer()">⏭</button>
-      </div>
-    </div>
-
-    <!-- Session Log -->
-    <div class="session-log">
-      <div class="section-title" style="padding:0 0 12px;">SESSION LOG</div>
-      <div id="session-log-list">
-        <div class="empty-state">
-          <div class="empty-state-icon">⏱️</div>
-          <div class="empty-state-text">No sessions yet today.<br>Start your first deep work session.</div>
-        </div>
-      </div>
-    </div>
-
-    <div class="scroll-pad"></div>
-  </div>
-
-  <!-- ======= DOPAMINE DETOX ======= -->
-  <div id="screen-detox" class="screen" style="overflow-y:auto;">
-    <div class="detox-header">
-      <div class="detox-title">DETOX</div>
-      <div class="detox-sub">KILL THE ADDICTION</div>
-    </div>
-
-    <!-- NoFap Counter -->
-    <div class="nofap-section" style="margin:16px 20px 0;">
-      <div style="font-family:var(--font-display);font-size:14px;letter-spacing:3px;color:var(--text3);text-align:center;margin-bottom:8px;">NOFAP STREAK</div>
-      <div class="nofap-days" id="nofap-days">0</div>
-      <div class="nofap-label">DAYS CLEAN</div>
-      <div class="nofap-msg" id="nofap-msg">"The first step is the hardest. Take it."</div>
-      <div class="nofap-controls">
-        <button class="btn btn-ghost btn-sm" style="flex:1;" onclick="resetNofap()">RELAPSED 💔</button>
-        <button class="btn btn-primary btn-sm" style="flex:1;" onclick="showNofapMotivation()">STAY STRONG 🔥</button>
-      </div>
-    </div>
-
-    <!-- Relapse Counter -->
-    <div class="relapse-counter" style="margin-top:16px;">
-      <div class="relapse-num" id="relapse-count">0</div>
-      <div class="relapse-label">DOPAMINE RELAPSES THIS MONTH</div>
-      <button class="relapse-btn" onclick="logRelapse()">+ LOG VIOLATION</button>
-    </div>
-
-    <!-- App Tracker -->
-    <div class="px-20">
-      <div class="section-title" style="padding:20px 0 12px;">APPS TO AVOID</div>
-      <div class="app-list" id="detox-app-list"></div>
-      <button class="btn btn-ghost" style="margin-top:12px;" onclick="openAddAppModal()">+ ADD APP TO BLACKLIST</button>
-    </div>
-
-    <div class="scroll-pad"></div>
-  </div>
-
-  <!-- ======= ANALYTICS ======= -->
-  <div id="screen-analytics" class="screen" style="overflow-y:auto;">
-    <div class="analytics-header">
-      <div class="analytics-title">ANALYTICS</div>
-      <div style="font-family:var(--font-mono);font-size:11px;color:var(--text3);letter-spacing:2px;">LAST 7 DAYS</div>
-    </div>
-
-    <!-- Summary Cards -->
-    <div class="summary-grid">
-      <div class="summary-card">
-        <div class="summary-val" id="an-avg-score" style="color:var(--orange);">0</div>
-        <div class="summary-lbl">Avg Score</div>
-      </div>
-      <div class="summary-card">
-        <div class="summary-val" id="an-focus-hrs" style="color:var(--blue);">0h</div>
-        <div class="summary-lbl">Focus Hrs</div>
-      </div>
-      <div class="summary-card">
-        <div class="summary-val" id="an-streak" style="color:var(--green);">0🔥</div>
-        <div class="summary-lbl">Streak</div>
-      </div>
-    </div>
-
-    <!-- Monk Score Chart -->
-    <div class="chart-card">
-      <div class="chart-title">MONK SCORE — 7 DAYS</div>
-      <div class="bar-chart" id="chart-score"></div>
-    </div>
-
-    <!-- Focus Hours Chart -->
-    <div class="chart-card">
-      <div class="chart-title">FOCUS HOURS — 7 DAYS</div>
-      <div class="bar-chart" id="chart-focus"></div>
-    </div>
-
-    <!-- Sleep Chart -->
-    <div class="chart-card">
-      <div class="chart-title">SLEEP HOURS — 7 DAYS</div>
-      <div class="bar-chart" id="chart-sleep"></div>
-    </div>
-
-    <!-- Habit completion -->
-    <div class="chart-card">
-      <div class="chart-title">HABIT COMPLETION %</div>
-      <div id="habit-bars" style="display:flex;flex-direction:column;gap:10px;"></div>
-    </div>
-
-    <div class="scroll-pad"></div>
-  </div>
-
-  <!-- ======= PROFILE ======= -->
-  <div id="screen-profile" class="screen" style="overflow-y:auto;">
-    <div class="profile-header">
-      <div class="profile-avatar" id="profile-avatar">M</div>
-      <div class="profile-username" id="profile-username">WARRIOR</div>
-      <div class="profile-rank" id="profile-rank-label">⚔️ RANK: BROKEN</div>
-      <div style="font-family:var(--font-mono);font-size:11px;color:var(--text3);margin-top:8px;" id="profile-days">DAY 0 OF YOUR JOURNEY</div>
-    </div>
-
-    <!-- Rank Roadmap -->
-    <div class="rank-progress-section">
-      <div class="section-title" style="padding:0 0 12px;">RANK SYSTEM</div>
-      <div class="rank-roadmap" id="rank-roadmap"></div>
-    </div>
-
-    <!-- Settings -->
-    <div class="settings-list">
-      <div class="section-title" style="padding:12px 0 12px;">SETTINGS</div>
-      <div class="settings-item" onclick="editName()">
-        <div class="settings-icon">✏️</div>
-        <div class="settings-label">Edit Name</div>
-        <div class="settings-arrow">›</div>
-      </div>
-      <div class="settings-item" onclick="resetAllData()">
-        <div class="settings-icon">🗑️</div>
-        <div class="settings-label" style="color:var(--red);">Reset All Data</div>
-        <div class="settings-arrow">›</div>
-      </div>
-      <div class="settings-item">
-        <div class="settings-icon">📱</div>
-        <div class="settings-label">App Version</div>
-        <div style="font-family:var(--font-mono);font-size:13px;color:var(--text3);">v1.0.0</div>
-      </div>
-    </div>
-
-    <div class="scroll-pad"></div>
-  </div>
-
-  <!-- ======= SHAME OVERLAY ======= -->
-  <div id="screen-shame">
-    <div class="shame-icon">💀</div>
-    <div class="shame-title">STREAK BROKEN</div>
-    <div class="shame-msg" id="shame-msg">You broke your discipline. Every champion has failed. The question is: do you rise?</div>
-    <div class="shame-stats">
-      <div class="shame-stat">
-        <div class="shame-stat-k">STREAK LOST</div>
-        <div class="shame-stat-v" id="shame-lost">0 days</div>
-      </div>
-      <div class="shame-stat">
-        <div class="shame-stat-k">PREVIOUS BEST</div>
-        <div class="shame-stat-v" id="shame-best">0 days</div>
-      </div>
-      <div class="shame-stat">
-        <div class="shame-stat-k">TODAY'S DATE</div>
-        <div class="shame-stat-v" id="shame-date"></div>
-      </div>
-    </div>
-    <button class="btn btn-danger" onclick="closeShame()">RISE AGAIN. NOW.</button>
-    <div style="margin-top:16px;font-size:13px;color:var(--text3);font-weight:600;letter-spacing:1px;">
-      "The secret of discipline is motivation. Find your WHY."
-    </div>
-  </div>
-
-  <!-- ======= BOTTOM NAV ======= -->
-  <nav id="bottom-nav">
-    <button class="nav-item active" onclick="navigateTo('home')" id="nav-home">
-      <span class="nav-icon">🏠</span>
-      <span>HOME</span>
-    </button>
-    <button class="nav-item" onclick="navigateTo('checkin')" id="nav-checkin">
-      <span class="nav-icon">📋</span>
-      <span>LOG</span>
-    </button>
-    <button class="nav-item" onclick="navigateTo('streak')" id="nav-streak">
-      <span class="nav-icon">🔥</span>
-      <span>STREAK</span>
-    </button>
-    <button class="nav-item" onclick="navigateTo('focus')" id="nav-focus">
-      <span class="nav-icon">⏱️</span>
-      <span>FOCUS</span>
-    </button>
-    <button class="nav-item" onclick="navigateTo('analytics')" id="nav-analytics">
-      <span class="nav-icon">📊</span>
-      <span>STATS</span>
-    </button>
-  </nav>
-
-  <!-- Add App Modal -->
-  <div class="modal-overlay" id="modal-add-app">
-    <div class="modal-sheet">
-      <div class="modal-handle"></div>
-      <div class="modal-title">BLACKLIST APP</div>
-      <input type="text" class="modal-input" id="modal-app-name" placeholder="App name (e.g. Instagram)">
-      <input type="text" class="modal-input" id="modal-app-emoji" placeholder="Emoji (e.g. 📸)" maxlength="4">
-      <div class="modal-btns">
-        <button class="modal-btn modal-btn-cancel" onclick="closeModal('modal-add-app')">CANCEL</button>
-        <button class="modal-btn modal-btn-primary" onclick="addApp()">ADD</button>
+        <div class="ci-title">CHECK-IN</div>
+        <div class="ci-date-lbl" id="ci-date-lbl">TODAY'S LOG</div>
       </div>
     </div>
   </div>
-
-  <!-- Toast -->
-  <div class="toast" id="toast">
-    <div class="toast-icon" id="toast-icon">🔥</div>
-    <div class="toast-text" id="toast-text">Notification</div>
-    <div class="toast-bar"></div>
+  <div class="ci-sec">
+    <div class="ci-sec-hd">⏰ Sleep Schedule</div>
+    <div class="time-grid">
+      <div class="time-box">
+        <label>WAKE TIME</label>
+        <input type="time" class="ci-input" id="ci-wake">
+      </div>
+      <div class="time-box">
+        <label>SLEEP TIME</label>
+        <input type="time" class="ci-input" id="ci-sleep">
+      </div>
+    </div>
+    <div class="ci-sec-hd">💪 Physical</div>
+    <div class="ci-row">
+      <div class="ci-row-ico">🏋️</div>
+      <div class="ci-row-lbl">Workout</div>
+      <div class="tog" id="tog-workout" onclick="togRow('workout')"></div>
+    </div>
+    <div class="ci-row">
+      <div class="ci-row-ico">🚿</div>
+      <div class="ci-row-lbl">Cold Shower</div>
+      <div class="tog" id="tog-cold" onclick="togRow('cold')"></div>
+    </div>
+    <div class="slider-wrap">
+      <div class="slider-lbl">💧 Water (Litres) <span id="sv-water">2.0L</span></div>
+      <input type="range" id="sl-water" min="0" max="5" step="0.5" value="2" oninput="slUpdate('water',this.value,'L')">
+    </div>
+    <div class="ci-sec-hd">🧠 Mental</div>
+    <div class="slider-wrap">
+      <div class="slider-lbl">📚 Study / Work Hours <span id="sv-study">0h</span></div>
+      <input type="range" id="sl-study" min="0" max="16" step="0.5" value="0" oninput="slUpdate('study',this.value,'h')">
+    </div>
+    <div class="ci-row" style="margin-top:12px;">
+      <div class="ci-row-ico">🧘</div>
+      <div class="ci-row-lbl">Meditation</div>
+      <div class="tog" id="tog-meditate" onclick="togRow('meditate')"></div>
+    </div>
+    <div class="ci-row">
+      <div class="ci-row-ico">📖</div>
+      <div class="ci-row-lbl">Reading</div>
+      <div class="tog" id="tog-reading" onclick="togRow('reading')"></div>
+    </div>
+    <div class="ci-sec-hd">⚡ Lifestyle</div>
+    <div class="ci-row">
+      <div class="ci-row-ico">🔥</div>
+      <div class="ci-row-lbl">NoFap — Held Today</div>
+      <div class="tog" id="tog-nofap" onclick="togRow('nofap')"></div>
+    </div>
+    <div class="slider-wrap" style="margin-top:12px;">
+      <div class="slider-lbl">📱 Screen Time <span id="sv-screen">4h</span></div>
+      <input type="range" id="sl-screen" min="0" max="16" step="0.5" value="4" oninput="slUpdate('screen',this.value,'h')">
+    </div>
+    <div class="slider-wrap">
+      <div class="slider-lbl">💰 Money Earned <span id="sv-money">₹0</span></div>
+      <input type="range" id="sl-money" min="0" max="10000" step="100" value="0" oninput="slUpdate('money',this.value,'₹',true)">
+    </div>
+    <div class="ci-sec-hd">😤 Mood</div>
+    <div class="mood-row">
+      <div class="mood-btn" onclick="pickMood('crushed',this)"><span class="me">😤</span><span>Crushed It</span></div>
+      <div class="mood-btn" onclick="pickMood('strong',this)"><span class="me">💪</span><span>Strong</span></div>
+      <div class="mood-btn" onclick="pickMood('focused',this)"><span class="me">🎯</span><span>Focused</span></div>
+      <div class="mood-btn" onclick="pickMood('tired',this)"><span class="me">😪</span><span>Tired</span></div>
+      <div class="mood-btn" onclick="pickMood('meh',this)"><span class="me">😑</span><span>Meh</span></div>
+    </div>
+    <div class="ci-sec-hd">📝 Daily Note</div>
+    <textarea class="ci-input" id="ci-note" placeholder="What did you accomplish today?"></textarea>
+    <div style="padding-bottom:12px;">
+      <button class="btn btn-fire" onclick="submitCI()">SUBMIT CHECK-IN 🔱</button>
+    </div>
   </div>
+</div>
 
+<!-- STREAK -->
+<div id="screen-streak" class="screen">
+  <div class="str-header">
+    <div style="font-family:var(--display);font-size:14px;letter-spacing:4px;color:var(--t3);margin-bottom:8px;">CONSISTENCY IS KING</div>
+    <span class="str-big" id="str-main">0</span>
+    <div class="str-big-lbl">DAY STREAK 🔥</div>
+  </div>
+  <div class="stat-grid">
+    <div class="stat-card"><div class="stat-val gold" id="st-best">0</div><div class="stat-lbl">Best Streak</div></div>
+    <div class="stat-card"><div class="stat-val green" id="st-perfect">0</div><div class="stat-lbl">Perfect Days</div></div>
+    <div class="stat-card"><div class="stat-val" id="st-total">0</div><div class="stat-lbl">Total Days</div></div>
+    <div class="stat-card"><div class="stat-val red" id="st-missed">0</div><div class="stat-lbl">Days Missed</div></div>
+  </div>
+  <div class="cal-wrap">
+    <div class="sec-title" style="padding:0 0 4px;">THIS MONTH</div>
+    <div class="cal-grid" id="cal-labels"></div>
+    <div class="cal-grid" id="cal-grid"></div>
+  </div>
+</div>
+
+<!-- FOCUS -->
+<div id="screen-focus" class="screen">
+  <div class="focus-header">
+    <div class="focus-title">DEEP WORK</div>
+    <div class="focus-total">TOTAL: <span id="focus-today">0m</span></div>
+  </div>
+  <div class="timer-wrap">
+    <div class="timer-ring-box">
+      <svg width="260" height="260" viewBox="0 0 260 260">
+        <defs>
+          <linearGradient id="tg" x1="0%" y1="0%" x2="100%" y2="0%">
+            <stop offset="0%" style="stop-color:#e63946"/>
+            <stop offset="100%" style="stop-color:#ff6b35"/>
+          </linearGradient>
+        </defs>
+        <circle class="t-ring-bg" cx="130" cy="130" r="120"/>
+        <circle class="t-ring-fill" id="t-ring" cx="130" cy="130" r="120"/>
+      </svg>
+      <div class="timer-center">
+        <div class="timer-num" id="t-display">25:00</div>
+        <div class="timer-phase" id="t-phase">POMODORO</div>
+        <div class="timer-sess" id="t-sess">SESSION #1</div>
+      </div>
+    </div>
+    <div class="timer-modes">
+      <div class="tm-btn on" onclick="setMode('pomo',this)" data-w="1500" data-b="300">POMO</div>
+      <div class="tm-btn" onclick="setMode('deep',this)" data-w="5400" data-b="900">DEEP</div>
+      <div class="tm-btn" onclick="setMode('sprint',this)" data-w="900" data-b="180">SPRINT</div>
+      <div class="tm-btn" onclick="setMode('custom',this)">CUSTOM</div>
+    </div>
+    <div class="timer-controls">
+      <button class="tbtn tbtn-sec" onclick="resetTimer()">↺</button>
+      <button class="tbtn tbtn-main" id="t-play-btn" onclick="toggleTimer()">▶</button>
+      <button class="tbtn tbtn-sec" onclick="skipTimer()">⏭</button>
+    </div>
+  </div>
+  <div class="sess-log">
+    <div class="sec-title" style="padding:20px 0 14px;">SESSION LOG</div>
+    <div id="sess-list"></div>
+  </div>
+</div>
+
+<!-- ANALYTICS -->
+<div id="screen-analytics" class="screen">
+  <div class="analytics-header">
+    <div class="analytics-title">ANALYTICS</div>
+    <div class="analytics-sub">LAST 7 DAYS</div>
+  </div>
+  <div class="sum-grid">
+    <div class="sum-card"><div class="sum-val" id="an-score" style="color:var(--orange);">0</div><div class="sum-lbl">Avg Score</div></div>
+    <div class="sum-card"><div class="sum-val" id="an-focus" style="color:var(--blue);">0h</div><div class="sum-lbl">Focus</div></div>
+    <div class="sum-card"><div class="sum-val" id="an-streak" style="color:var(--green);">0🔥</div><div class="sum-lbl">Streak</div></div>
+  </div>
+  <div class="chart-card"><div class="chart-title">MONK SCORE — 7 DAYS</div><div class="bar-chart" id="ch-score"></div></div>
+  <div class="chart-card"><div class="chart-title">STUDY HOURS — 7 DAYS</div><div class="bar-chart" id="ch-study"></div></div>
+  <div class="chart-card"><div class="chart-title">SLEEP HOURS — 7 DAYS</div><div class="bar-chart" id="ch-sleep"></div></div>
+  <div class="chart-card"><div class="chart-title">HABIT COMPLETION %</div><div id="habit-bars"></div></div>
+</div>
+
+<!-- PROFILE -->
+<div id="screen-profile" class="screen">
+  <div class="profile-header">
+    <div class="profile-av" id="p-av">M</div>
+    <div class="profile-name" id="p-name">WARRIOR</div>
+    <div class="profile-rank-lbl" id="p-rank">⚔️ RANK: BROKEN</div>
+    <div class="profile-days" id="p-days">DAY 0 OF YOUR JOURNEY</div>
+  </div>
+  <div class="sec-title">RANK SYSTEM</div>
+  <div class="rank-road" id="rank-road"></div>
+  <div class="sec-title">SETTINGS</div>
+  <div class="settings-sec">
+    <div class="s-item" onclick="editName()"><div class="s-ico">✏️</div><div class="s-lbl">Edit Name</div><div class="s-arr">›</div></div>
+    <div class="s-item" onclick="resetAll()"><div class="s-ico">🗑️</div><div class="s-lbl" style="color:var(--red);">Reset All Data</div><div class="s-arr">›</div></div>
+    <div class="s-item"><div class="s-ico">📱</div><div class="s-lbl">Version</div><div style="font-family:var(--mono);font-size:14px;color:var(--t3);">v2.0.0</div></div>
+  </div>
+</div>
+
+<!-- SHAME -->
+<div id="shame">
+  <div class="shame-ico">💀</div>
+  <div class="shame-title">STREAK<br>BROKEN</div>
+  <div class="shame-msg">You broke your discipline. Every champion has failed. The only question is — do you rise?</div>
+  <div class="shame-stats">
+    <div class="shame-row"><div class="shame-k">STREAK LOST</div><div class="shame-v" id="sh-lost">0 days</div></div>
+    <div class="shame-row"><div class="shame-k">YOUR BEST</div><div class="shame-v" id="sh-best">0 days</div></div>
+    <div class="shame-row"><div class="shame-k">DATE</div><div class="shame-v" id="sh-date"></div></div>
+  </div>
+  <button class="btn btn-danger" onclick="closeShame()">RISE AGAIN. NOW.</button>
+  <div class="shame-quote">"The secret of discipline is motivation. Find your WHY."</div>
+</div>
+
+<!-- ADD APP MODAL -->
+<div class="modal" id="modal-app">
+  <div class="modal-sheet">
+    <div class="modal-handle"></div>
+    <div class="modal-title">BLACKLIST APP</div>
+    <input type="text" class="modal-input" id="m-app-name" placeholder="App name (e.g. Instagram)">
+    <input type="text" class="modal-input" id="m-app-emoji" placeholder="Emoji (e.g. 📸)" maxlength="4">
+    <div class="modal-btns">
+      <button class="mb mb-cancel" onclick="closeModal('modal-app')">CANCEL</button>
+      <button class="mb mb-fire" onclick="addApp()">ADD</button>
+    </div>
+  </div>
+</div>
+
+<!-- NAV -->
+<nav id="nav">
+  <button class="ni on" onclick="go('home')" id="nav-home"><span class="ni-icon">🏠</span><span class="ni-label">HOME</span></button>
+  <button class="ni" onclick="go('checkin')" id="nav-checkin"><span class="ni-icon">📋</span><span class="ni-label">LOG</span></button>
+  <button class="ni" onclick="go('streak')" id="nav-streak"><span class="ni-icon">🔥</span><span class="ni-label">STREAK</span></button>
+  <button class="ni" onclick="go('focus')" id="nav-focus"><span class="ni-icon">⏱️</span><span class="ni-label">FOCUS</span></button>
+  <button class="ni" onclick="go('analytics')" id="nav-analytics"><span class="ni-icon">📊</span><span class="ni-label">STATS</span></button>
+</nav>
+
+<!-- TOAST -->
+<div class="toast" id="toast">
+  <div class="toast-ico" id="t-ico">🔥</div>
+  <div class="toast-txt" id="t-txt">Message</div>
+  <div class="toast-bar"></div>
 </div>
 
 <script>
 // ============================================================
-//  MONK MODE — APP ENGINE
+// MONK MODE ENGINE v2
 // ============================================================
 
-// ---- STATE ----
-let state = {
-  user: { name: '', goals: [], joinDate: '' },
-  stats: {
-    currentStreak: 0,
-    bestStreak: 0,
-    perfectDays: 0,
-    totalCheckins: 0,
-    missedDays: 0,
-    lastCheckinDate: '',
-    nofapStreak: 0,
-    nofapStartDate: '',
-    relapses: 0,
-    totalFocusSeconds: 0,
-  },
-  todayLog: null,
-  history: [],  // array of daily logs
-  detoxApps: [
-    { name:'Instagram', emoji:'📸', violations:0 },
-    { name:'YouTube', emoji:'▶️', violations:0 },
-    { name:'Twitter/X', emoji:'𝕏', violations:0 },
-  ],
-  focus: {
-    sessions: [],
-    todaySeconds: 0,
-    todayDate: '',
-  },
-};
-
 const RANKS = [
-  { name:'BROKEN',      icon:'💀', req:0,   msg:'Rise from zero. Your journey begins now.' },
-  { name:'AVERAGE',     icon:'😑', req:7,   msg:'You started. Most never do. Keep going.' },
-  { name:'DISCIPLINED', icon:'⚔️', req:21,  msg:'3 weeks of consistency. Real progress.' },
-  { name:'WARRIOR',     icon:'🗡️', req:45,  msg:'You are forging yourself in fire.' },
-  { name:'ELITE',       icon:'🦅', req:90,  msg:'Top 5%. You operate differently now.' },
-  { name:'MONK',        icon:'🧿', req:180, msg:'Half a year of discipline. Rare breed.' },
-  { name:'ASCENDED',    icon:'🔱', req:365, msg:'One full year. You are the standard.' },
+  {name:'BROKEN',icon:'💀',req:0,msg:'Rise from zero. Your journey begins now.'},
+  {name:'AVERAGE',icon:'😑',req:7,msg:'You started. Most never do. Keep going.'},
+  {name:'DISCIPLINED',icon:'⚔️',req:21,msg:'3 weeks of consistency. Real progress.'},
+  {name:'WARRIOR',icon:'🗡️',req:45,msg:'You are forging yourself in fire.'},
+  {name:'ELITE',icon:'🦅',req:90,msg:'Top 5%. You operate differently now.'},
+  {name:'MONK',icon:'🧿',req:180,msg:'Half a year of discipline. Rare breed.'},
+  {name:'ASCENDED',icon:'🔱',req:365,msg:'One full year. You ARE the standard.'},
 ];
 
-const NOFAP_MESSAGES = [
+const NOFAP_MSGS = [
   "Retain your energy. Channel it to greatness.",
   "Every urge resisted = discipline earned.",
   "Your ancestors had no such weakness.",
-  "This battle is won in your mind first.",
   "Sexual transmutation is your superpower.",
   "The urge passes in 10 minutes. Wait it out.",
   "Focus this energy on building your empire.",
-  "Real kings control themselves before they control anything else.",
+  "Real kings control themselves first.",
+  "This battle is won in your mind.",
 ];
 
-const NOTIFICATIONS = [
+const NOTIFS = [
   "Your future self is watching.",
   "Discipline beats motivation. Always.",
-  "2 hours wasted already. Get back on track.",
   "Do not break the streak.",
-  "While you scroll, someone is building their empire.",
-  "The pain of discipline is nothing compared to the pain of regret.",
+  "While you scroll, someone is building.",
+  "The pain of discipline < pain of regret.",
   "You said you wanted this. Prove it.",
-  "Your streak is your most valuable asset.",
 ];
 
-let timerInterval = null;
-let timerRunning = false;
-let timerSeconds = 1500;
-let timerTotal = 1500;
-let timerBreakSeconds = 300;
-let timerIsBreak = false;
-let timerSessionCount = 0;
-let timerStartTime = null;
+let S = {
+  user:{name:'',goals:[],joinDate:''},
+  stats:{streak:0,best:0,perfect:0,total:0,missed:0,lastDate:'',nofapStreak:0,nofapStart:'',relapses:0},
+  todayLog:null,
+  history:[],
+  detox:[
+    {name:'Instagram',emoji:'📸',violations:0},
+    {name:'YouTube',emoji:'▶️',violations:0},
+    {name:'Twitter/X',emoji:'𝕏',violations:0},
+  ],
+  focus:{sessions:[],todaySecs:0,todayDate:''},
+};
 
-// ---- STORAGE ----
-function saveState() {
-  try { localStorage.setItem('monkmode_v1', JSON.stringify(state)); } catch(e){}
+// Timer state
+let tInterval=null, tRunning=false, tSecs=1500, tTotal=1500, tBreakSecs=300, tIsBreak=false, tSessCount=0;
+
+function save(){try{localStorage.setItem('mm2',JSON.stringify(S));}catch(e){}}
+function load(){try{const d=localStorage.getItem('mm2');if(d)S={...S,...JSON.parse(d)};}catch(e){}}
+
+function today(){const d=new Date();return`${d.getFullYear()}-${p(d.getMonth()+1)}-${p(d.getDate())}`;}
+function yesterday(){const d=new Date();d.setDate(d.getDate()-1);return`${d.getFullYear()}-${p(d.getMonth()+1)}-${p(d.getDate())}`;}
+function p(n){return String(n).padStart(2,'0');}
+function dayStr(str){return['SUN','MON','TUE','WED','THU','FRI','SAT'][new Date(str).getDay()];}
+function dateDisp(d){return new Date(d).toLocaleDateString('en-IN',{weekday:'short',day:'numeric',month:'short'});}
+
+function calcScore(log){
+  if(!log)return 0;
+  let s=40;
+  if(log.workout)s+=10;
+  if(log.cold)s+=5;
+  if(log.meditate)s+=7;
+  if(log.reading)s+=5;
+  if(log.nofap)s+=8;
+  if(log.water>=2.5)s+=5;
+  if(log.study>=4)s+=8;else if(log.study>=2)s+=4;
+  if(log.wake&&log.wake<='06:30')s+=5;
+  if(log.money>0)s+=3;
+  if(log.screen>=8)s-=15;else if(log.screen>=5)s-=8;else if(log.screen>=3)s-=3;
+  return Math.min(100,Math.max(0,s));
 }
-function loadState() {
-  try {
-    const s = localStorage.getItem('monkmode_v1');
-    if (s) state = { ...state, ...JSON.parse(s) };
-  } catch(e){}
+
+function getRank(streak){
+  let r=RANKS[0];
+  for(const rk of RANKS){if(streak>=rk.req)r=rk;}
+  return r;
 }
 
-// ---- INIT ----
-function init() {
-  loadState();
-  const today = getTodayStr();
-
-  // Reset today focus if new day
-  if (state.focus.todayDate !== today) {
-    state.focus.todaySeconds = 0;
-    state.focus.todayDate = today;
-    state.focus.sessions = state.focus.sessions || [];
-    // Filter to keep last 10
-    if (state.focus.sessions.length > 30) {
-      state.focus.sessions = state.focus.sessions.slice(-10);
-    }
-    saveState();
-  }
-
-  if (!state.user.name) {
+function init(){
+  load();
+  const t=today();
+  if(S.focus.todayDate!==t){S.focus.todaySecs=0;S.focus.todayDate=t;save();}
+  if(!S.user.name){
     showScreen('onboarding');
-    document.getElementById('bottom-nav').classList.remove('visible');
+    document.getElementById('nav').classList.remove('show');
   } else {
-    showScreen('home');
-    document.getElementById('bottom-nav').classList.add('visible');
     checkStreakBreak();
-    updateAllUI();
-    maybeShowMotivation();
+    showScreen('home');
+    document.getElementById('nav').classList.add('show');
+    updateAll();
+    setTimeout(()=>toast('🔥',NOTIFS[Math.floor(Math.random()*NOTIFS.length)]),2000);
   }
 }
 
 // ---- ONBOARDING ----
-let obSlide = 1;
-let selectedGoals = [];
-
-function nextObSlide() {
-  const slides = document.querySelectorAll('.onboard-slide');
-  slides[obSlide - 1].classList.remove('active');
-  obSlide++;
-  if (obSlide > 4) obSlide = 4;
-  slides[obSlide - 1].classList.add('active');
+let obN=1, obGoals=[];
+function obNext(){
+  document.getElementById('ob'+obN).classList.remove('on');
+  obN++;
+  if(obN>4)obN=4;
+  document.getElementById('ob'+obN).classList.add('on');
 }
-
-function toggleGoal(el, goal) {
-  el.classList.toggle('selected');
-  if (selectedGoals.includes(goal)) {
-    selectedGoals = selectedGoals.filter(g => g !== goal);
-  } else {
-    selectedGoals.push(goal);
-  }
+function togGoal(el,g){
+  el.classList.toggle('on');
+  if(obGoals.includes(g))obGoals=obGoals.filter(x=>x!==g);
+  else obGoals.push(g);
 }
-
-function completeOnboarding() {
-  const name = document.getElementById('ob-name-input').value.trim();
-  if (!name) {
-    document.getElementById('ob-name-input').style.borderColor = 'var(--red)';
-    showToast('💀', 'Warriors have names. Enter yours.');
-    return;
-  }
-  state.user.name = name.toUpperCase();
-  state.user.goals = selectedGoals;
-  state.user.joinDate = getTodayStr();
-  state.stats.nofapStartDate = getTodayStr();
-  saveState();
+function obDone(){
+  const name=document.getElementById('ob-name').value.trim();
+  if(!name){toast('💀','Warriors have names. Enter yours.');return;}
+  S.user.name=name.toUpperCase();
+  S.user.goals=obGoals;
+  S.user.joinDate=today();
+  S.stats.nofapStart=today();
+  save();
   showScreen('home');
-  document.getElementById('bottom-nav').classList.add('visible');
-  updateAllUI();
-  showToast('🔱', `Welcome, ${state.user.name}. The journey begins.`);
+  document.getElementById('nav').classList.add('show');
+  updateAll();
+  toast('🔱',`Welcome, ${S.user.name}. The journey begins.`);
 }
 
 // ---- NAVIGATION ----
-function showScreen(name) {
-  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
-  document.getElementById('screen-' + name)?.classList.add('active');
+function showScreen(name){
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  const el=document.getElementById('screen-'+name);
+  if(el)el.classList.add('active');
 }
-
-function navigateTo(name) {
+function go(name){
   showScreen(name);
-  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
-  const navEl = document.getElementById('nav-' + name);
-  if (navEl) navEl.classList.add('active');
-
-  // Screen-specific updates
-  if (name === 'home') updateHomeUI();
-  if (name === 'streak') updateStreakUI();
-  if (name === 'analytics') updateAnalyticsUI();
-  if (name === 'detox') updateDetoxUI();
-  if (name === 'profile') updateProfileUI();
-  if (name === 'focus') updateFocusUI();
-  if (name === 'checkin') initCheckin();
-}
-
-// ---- TODAY ----
-function getTodayStr() {
-  const d = new Date();
-  return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
-}
-function getDateStr(d) {
-  const dt = typeof d === 'string' ? new Date(d) : d;
-  return dt.toLocaleDateString('en-IN', { weekday:'short', day:'numeric', month:'short' });
-}
-function getDayOfWeek(d) {
-  const days = ['SUN','MON','TUE','WED','THU','FRI','SAT'];
-  return days[new Date(d).getDay()];
-}
-
-// ---- MONK SCORE ----
-function calcScore(log) {
-  if (!log) return 0;
-  let score = 40; // Base
-
-  // Positive habits
-  if (log.workout) score += 10;
-  if (log.cold) score += 5;
-  if (log.meditate) score += 7;
-  if (log.reading) score += 5;
-  if (log.nofap) score += 8;
-  if (log.water >= 2.5) score += 5;
-  if (log.study >= 4) score += 8;
-  else if (log.study >= 2) score += 4;
-  if (log.wake && log.wake <= '06:30') score += 5;
-  if (log.money > 0) score += 3;
-
-  // Negative
-  if (log.screen >= 8) score -= 15;
-  else if (log.screen >= 5) score -= 8;
-  else if (log.screen >= 3) score -= 3;
-
-  return Math.min(100, Math.max(0, score));
-}
-
-function getRank(streak) {
-  let rank = RANKS[0];
-  for (let r of RANKS) {
-    if (streak >= r.req) rank = r;
-  }
-  return rank;
+  document.querySelectorAll('.ni').forEach(n=>n.classList.remove('on'));
+  const ni=document.getElementById('nav-'+name);
+  if(ni)ni.classList.add('on');
+  if(name==='home')updateHome();
+  if(name==='streak')updateStreak();
+  if(name==='analytics')updateAnalytics();
+  if(name==='focus')updateFocusUI();
+  if(name==='profile')updateProfile();
+  if(name==='checkin')initCI();
 }
 
 // ---- CHECK-IN ----
-function initCheckin() {
-  const now = new Date();
-  const timeStr = `${String(now.getHours()).padStart(2,'0')}:${String(now.getMinutes()).padStart(2,'0')}`;
-  document.getElementById('ci-date').textContent = getDateStr(now).toUpperCase();
-
-  const today = getTodayStr();
-  const log = state.todayLog;
-
-  // Pre-fill with today's log or defaults
-  document.getElementById('ci-wake').value = log?.wake || '06:00';
-  document.getElementById('ci-sleep').value = log?.sleep || '22:30';
-  document.getElementById('ci-water').value = log?.water ?? 2;
-  document.getElementById('ci-study').value = log?.study ?? 0;
-  document.getElementById('ci-screen').value = log?.screen ?? 4;
-  document.getElementById('ci-money').value = log?.money ?? 0;
-  document.getElementById('ci-note').value = log?.note || '';
-
-  updateSlider('water', document.getElementById('ci-water').value, 'L');
-  updateSlider('study', document.getElementById('ci-study').value, 'h');
-  updateSlider('screen', document.getElementById('ci-screen').value, 'h');
-  updateSlider('money', document.getElementById('ci-money').value, '₹', true);
-
-  // Toggles
-  const bools = ['workout','cold','meditate','reading','nofap'];
-  bools.forEach(k => {
-    const tog = document.getElementById('tog-' + k);
-    if (tog) {
-      tog.className = 'ci-toggle' + (log?.[k] ? ' on' : '');
-    }
+function initCI(){
+  const log=S.todayLog;
+  const now=new Date();
+  document.getElementById('ci-date-lbl').textContent=dateDisp(now).toUpperCase();
+  document.getElementById('ci-wake').value=log?.wake||'06:00';
+  document.getElementById('ci-sleep').value=log?.sleep||'22:30';
+  document.getElementById('sl-water').value=log?.water??2;
+  document.getElementById('sl-study').value=log?.study??0;
+  document.getElementById('sl-screen').value=log?.screen??4;
+  document.getElementById('sl-money').value=log?.money??0;
+  document.getElementById('ci-note').value=log?.note||'';
+  slUpdate('water',document.getElementById('sl-water').value,'L');
+  slUpdate('study',document.getElementById('sl-study').value,'h');
+  slUpdate('screen',document.getElementById('sl-screen').value,'h');
+  slUpdate('money',document.getElementById('sl-money').value,'₹',true);
+  ['workout','cold','meditate','reading','nofap'].forEach(k=>{
+    const t=document.getElementById('tog-'+k);
+    if(t)t.className='tog'+(log?.[k]?' on':'');
   });
-
-  // Mood
-  document.querySelectorAll('.mood-btn').forEach(b => b.classList.remove('selected'));
-  if (log?.mood) {
-    document.querySelectorAll('.mood-btn').forEach(b => {
-      if (b.getAttribute('onclick').includes(log.mood)) b.classList.add('selected');
+  document.querySelectorAll('.mood-btn').forEach(b=>b.classList.remove('on'));
+  if(log?.mood){
+    document.querySelectorAll('.mood-btn').forEach(b=>{
+      if(b.getAttribute('onclick').includes("'"+log.mood+"'"))b.classList.add('on');
     });
   }
 }
 
-function updateSlider(key, val, unit, prefix = false) {
-  const map = {
-    water: 'water-val',
-    study: 'study-val',
-    screen: 'screen-val',
-    money: 'money-val',
+function slUpdate(k,v,unit,pre=false){
+  const map={water:'sv-water',study:'sv-study',screen:'sv-screen',money:'sv-money'};
+  const el=document.getElementById(map[k]);
+  if(!el)return;
+  el.textContent=pre?unit+v:v+unit;
+}
+function togRow(k){document.getElementById('tog-'+k)?.classList.toggle('on');}
+function pickMood(m,el){
+  document.querySelectorAll('.mood-btn').forEach(b=>b.classList.remove('on'));
+  el.classList.add('on');
+}
+
+function submitCI(){
+  const t=today();
+  const log={
+    date:t,
+    wake:document.getElementById('ci-wake').value,
+    sleep:document.getElementById('ci-sleep').value,
+    water:parseFloat(document.getElementById('sl-water').value),
+    study:parseFloat(document.getElementById('sl-study').value),
+    screen:parseFloat(document.getElementById('sl-screen').value),
+    money:parseFloat(document.getElementById('sl-money').value),
+    workout:document.getElementById('tog-workout').classList.contains('on'),
+    cold:document.getElementById('tog-cold').classList.contains('on'),
+    meditate:document.getElementById('tog-meditate').classList.contains('on'),
+    reading:document.getElementById('tog-reading').classList.contains('on'),
+    nofap:document.getElementById('tog-nofap').classList.contains('on'),
+    note:document.getElementById('ci-note').value.trim(),
+    mood:document.querySelector('.mood-btn.on')?.getAttribute('onclick')?.match(/'(\w+)'/)?.[1]||'focused',
+    score:0,ts:Date.now(),
   };
-  const el = document.getElementById(map[key]);
-  if (!el) return;
-  if (prefix) {
-    el.textContent = unit + val;
+  log.score=calcScore(log);
+
+  const last=S.stats.lastDate;
+  const yest=yesterday();
+  if(last===t){
+    S.history=S.history.filter(h=>h.date!==t);
+  } else if(last===yest||!last){
+    S.stats.streak++;
+    if(S.stats.streak>S.stats.best)S.stats.best=S.stats.streak;
+  } else if(last&&last<yest){
+    const lost=S.stats.streak;
+    if(lost>0)showShame(lost);
+    S.stats.streak=1;
+    const days=Math.floor((new Date(t)-new Date(last))/86400000);
+    S.stats.missed+=Math.max(0,days-1);
   } else {
-    el.textContent = val + unit;
+    S.stats.streak=1;
   }
-}
+  S.stats.lastDate=t;
+  S.stats.total++;
+  if(log.score>=80)S.stats.perfect++;
 
-function toggleTog(key) {
-  const el = document.getElementById('tog-' + key);
-  if (!el) return;
-  el.classList.toggle('on');
-}
-
-function selectMood(mood) {
-  document.querySelectorAll('.mood-btn').forEach(b => b.classList.remove('selected'));
-  const btn = document.querySelector(`.mood-btn[onclick="selectMood('${mood}')"]`);
-  if (btn) btn.classList.add('selected');
-}
-
-function submitCheckin() {
-  const today = getTodayStr();
-  const log = {
-    date: today,
-    wake: document.getElementById('ci-wake').value,
-    sleep: document.getElementById('ci-sleep').value,
-    water: parseFloat(document.getElementById('ci-water').value),
-    study: parseFloat(document.getElementById('ci-study').value),
-    screen: parseFloat(document.getElementById('ci-screen').value),
-    money: parseFloat(document.getElementById('ci-money').value),
-    workout: document.getElementById('tog-workout').classList.contains('on'),
-    cold: document.getElementById('tog-cold').classList.contains('on'),
-    meditate: document.getElementById('tog-meditate').classList.contains('on'),
-    reading: document.getElementById('tog-reading').classList.contains('on'),
-    nofap: document.getElementById('tog-nofap').classList.contains('on'),
-    note: document.getElementById('ci-note').value.trim(),
-    mood: document.querySelector('.mood-btn.selected')?.getAttribute('onclick')?.match(/'(\w+)'/)?.[1] || 'focused',
-    score: 0,
-    timestamp: Date.now(),
-  };
-  log.score = calcScore(log);
-
-  // Update streak
-  const last = state.stats.lastCheckinDate;
-  const yesterday = getYesterdayStr();
-
-  if (last === today) {
-    // Already checked in today — update
-    state.history = state.history.filter(h => h.date !== today);
-  } else if (last === yesterday || !last) {
-    state.stats.currentStreak++;
-    if (state.stats.currentStreak > state.stats.bestStreak) {
-      state.stats.bestStreak = state.stats.currentStreak;
-    }
-  } else if (last && last < yesterday) {
-    // Missed days — show shame
-    const lostStreak = state.stats.currentStreak;
-    if (lostStreak > 0) {
-      showShame(lostStreak);
-    }
-    state.stats.currentStreak = 1;
+  // NoFap
+  if(!log.nofap){
+    S.stats.nofapStreak=0;S.stats.nofapStart=t;
   } else {
-    state.stats.currentStreak = 1;
+    const ms=new Date(t)-new Date(S.stats.nofapStart||t);
+    S.stats.nofapStreak=Math.floor(ms/86400000)+1;
   }
 
-  state.stats.lastCheckinDate = today;
-  state.stats.totalCheckins++;
-  if (log.score >= 80) state.stats.perfectDays++;
+  S.todayLog=log;
+  S.history.push(log);
+  if(S.history.length>365)S.history=S.history.slice(-365);
+  save();
+  updateAll();
+  toast('🔱',`Score: ${log.score}/100 • Streak: ${S.stats.streak} days!`);
+  setTimeout(()=>go('home'),1200);
+}
 
-  // Update nofap
-  if (!log.nofap) {
-    // Nofap streak broken today
-    state.stats.nofapStreak = 0;
-    state.stats.nofapStartDate = today;
-  } else {
-    const nStart = state.stats.nofapStartDate || today;
-    const ms = new Date(today) - new Date(nStart);
-    state.stats.nofapStreak = Math.floor(ms / 86400000) + 1;
+function checkStreakBreak(){
+  const last=S.stats.lastDate;
+  if(!last)return;
+  const t=today(),yest=yesterday();
+  if(last<yest&&last!==t&&S.stats.streak>0){
+    const days=Math.floor((new Date(t)-new Date(last))/86400000);
+    S.stats.missed+=Math.max(0,days-1);
+    const lost=S.stats.streak;
+    S.stats.streak=0;
+    save();
+    if(lost>1)setTimeout(()=>showShame(lost),1200);
   }
-
-  state.todayLog = log;
-  state.history.push(log);
-  if (state.history.length > 365) state.history = state.history.slice(-365);
-
-  saveState();
-  updateAllUI();
-  showToast('🔱', `Score: ${log.score}/100. Streak: ${state.stats.currentStreak} days!`);
-  setTimeout(() => navigateTo('home'), 1200);
-}
-
-function getYesterdayStr() {
-  const d = new Date();
-  d.setDate(d.getDate() - 1);
-  return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
-}
-
-function checkStreakBreak() {
-  const last = state.stats.lastCheckinDate;
-  if (!last) return;
-  const yesterday = getYesterdayStr();
-  const today = getTodayStr();
-  if (last < yesterday && last !== today && state.stats.currentStreak > 0) {
-    const days = Math.floor((new Date(today) - new Date(last)) / 86400000);
-    state.stats.missedDays += days - 1;
-    const lost = state.stats.currentStreak;
-    state.stats.currentStreak = 0;
-    saveState();
-    if (lost > 1) {
-      setTimeout(() => showShame(lost), 1000);
-    }
-  }
-}
-
-// ---- SHAME SCREEN ----
-function showShame(lostStreak) {
-  document.getElementById('shame-lost').textContent = lostStreak + ' days';
-  document.getElementById('shame-best').textContent = state.stats.bestStreak + ' days';
-  document.getElementById('shame-date').textContent = getDateStr(new Date());
-  document.getElementById('screen-shame').classList.add('active');
-}
-function closeShame() {
-  document.getElementById('screen-shame').classList.remove('active');
 }
 
 // ---- UI UPDATES ----
-function updateAllUI() {
-  updateHomeUI();
-  updateFocusUI();
-  updateNofapUI();
-}
+function updateAll(){updateHome();updateFocusUI();}
 
-function updateHomeUI() {
-  document.getElementById('home-name').textContent = state.user.name || 'WARRIOR';
-  const now = new Date();
-  document.getElementById('home-date').innerHTML =
-    getDayOfWeek(now) + '<br>' + now.toLocaleDateString('en-IN', {day:'numeric',month:'short',year:'numeric'});
-
-  const score = calcScore(state.todayLog) || 0;
-  animateNumber('score-num', score);
-
-  const rank = getRank(state.stats.currentStreak);
-  document.getElementById('score-rank-label').textContent = rank.name;
-  document.getElementById('home-rank-icon').textContent = rank.icon;
-  document.getElementById('home-rank-name').textContent = rank.name;
-  document.getElementById('home-rank-sub').textContent = rank.msg;
-
-  // Rank progress
-  const ri = RANKS.indexOf(rank);
-  const nextRank = RANKS[ri + 1];
-  if (nextRank) {
-    const progress = ((state.stats.currentStreak - rank.req) / (nextRank.req - rank.req)) * 100;
-    document.getElementById('home-rank-fill').style.width = Math.min(100, Math.max(0, progress)) + '%';
-  } else {
-    document.getElementById('home-rank-fill').style.width = '100%';
+function updateHome(){
+  document.getElementById('hname').textContent=S.user.name||'WARRIOR';
+  const now=new Date();
+  document.getElementById('hdate').innerHTML=dayStr(today())+'<br>'+now.toLocaleDateString('en-IN',{day:'numeric',month:'short',year:'numeric'});
+  const score=calcScore(S.todayLog)||0;
+  animNum('score-num',score);
+  const circ=2*Math.PI*90;
+  document.getElementById('score-ring').style.strokeDashoffset=circ-(score/100)*circ;
+  const rank=getRank(S.stats.streak);
+  document.getElementById('score-rank-txt').textContent=rank.name;
+  document.getElementById('h-rank-ico').textContent=rank.icon;
+  document.getElementById('h-rank-name').textContent=rank.name;
+  document.getElementById('h-rank-sub').textContent=rank.msg;
+  const ri=RANKS.indexOf(rank);
+  const nr=RANKS[ri+1];
+  if(nr){const p=((S.stats.streak-rank.req)/(nr.req-rank.req))*100;document.getElementById('h-rank-fill').style.width=Math.min(100,Math.max(0,p))+'%';}
+  else{document.getElementById('h-rank-fill').style.width='100%';}
+  document.getElementById('h-streak').textContent=S.stats.streak;
+  document.getElementById('h-best').textContent=S.stats.best;
+  document.getElementById('h-perfect').textContent=S.stats.perfect;
+  const log=S.todayLog,t=today(),ci=log?.date===t;
+  document.getElementById('cta-status').textContent=ci?`Done ✓ • Score: ${log.score}/100`:'Not done today • Tap to log';
+  if(ci&&log){
+    document.getElementById('q-wake').textContent=log.wake||'--:--';
+    document.getElementById('qs-wake').className='qc-dot done';
+    document.getElementById('q-workout').textContent=log.workout?'YES ✓':'NO';
+    document.getElementById('qs-workout').className=log.workout?'qc-dot done':'qc-dot pend';
+    document.getElementById('q-water').textContent=log.water+'L';
+    document.getElementById('qs-water').className=log.water>=2.5?'qc-dot done':'qc-dot pend';
   }
+  const focusFmt=fmtTime(S.focus.todaySecs);
+  document.getElementById('q-focus').textContent=focusFmt;
+  document.getElementById('qs-focus').className=S.focus.todaySecs>0?'qc-dot done':'qc-dot pend';
+}
 
-  // Score ring
-  const circumference = 2 * Math.PI * 90;
-  const offset = circumference - (score / 100) * circumference;
-  document.getElementById('score-ring').style.strokeDashoffset = offset;
+function updateStreak(){
+  document.getElementById('str-main').textContent=S.stats.streak;
+  document.getElementById('st-best').textContent=S.stats.best;
+  document.getElementById('st-perfect').textContent=S.stats.perfect;
+  document.getElementById('st-total').textContent=S.stats.total;
+  document.getElementById('st-missed').textContent=S.stats.missed;
+  renderCal();
+}
 
-  // Streaks
-  document.getElementById('home-streak').textContent = state.stats.currentStreak;
-  document.getElementById('home-best').textContent = state.stats.bestStreak;
-  document.getElementById('home-perfect').textContent = state.stats.perfectDays;
-
-  // Quick cards
-  const log = state.todayLog;
-  const today = getTodayStr();
-  const checkedIn = log?.date === today;
-
-  document.getElementById('checkin-status-text').textContent =
-    checkedIn ? `Done ✓ • Score: ${log.score}/100` : 'Not done today • Tap to log';
-
-  if (log && checkedIn) {
-    document.getElementById('qc-wake').textContent = log.wake || '--:--';
-    document.getElementById('qcs-wake').className = 'qc-status done';
-    document.getElementById('qc-focus').textContent = formatFocusTime(state.focus.todaySeconds);
-    document.getElementById('qcs-focus').className = state.focus.todaySeconds > 0 ? 'qc-status done' : 'qc-status pending';
-    document.getElementById('qc-workout').textContent = log.workout ? 'YES ✓' : 'NO';
-    document.getElementById('qcs-workout').className = log.workout ? 'qc-status done' : 'qc-status pending';
-    document.getElementById('qc-water').textContent = log.water + 'L';
-    document.getElementById('qcs-water').className = log.water >= 2.5 ? 'qc-status done' : 'qc-status pending';
-  } else {
-    document.getElementById('qc-wake').textContent = '--:--';
-    document.getElementById('qc-focus').textContent = formatFocusTime(state.focus.todaySeconds);
+function renderCal(){
+  const now=new Date(),yr=now.getFullYear(),mo=now.getMonth();
+  const first=new Date(yr,mo,1).getDay(),days=new Date(yr,mo+1,0).getDate();
+  const t=today();
+  document.getElementById('cal-labels').innerHTML=['SUN','MON','TUE','WED','THU','FRI','SAT'].map(d=>`<div class="cal-hd">${d}</div>`).join('');
+  const doneSet=new Set(S.history.map(h=>h.date));
+  let html='';
+  for(let i=0;i<first;i++)html+='<div></div>';
+  for(let d=1;d<=days;d++){
+    const ds=`${yr}-${p(mo+1)}-${p(d)}`;
+    const isT=ds===t,isFut=ds>t,isDone=doneSet.has(ds),isMiss=!isFut&&!isDone&&ds<t;
+    let cls='cal-day';
+    if(isT)cls+=' today';
+    else if(isDone)cls+=' done';
+    else if(isMiss)cls+=' missed';
+    else if(isFut)cls+=' future';
+    html+=`<div class="${cls}">${d}</div>`;
   }
+  document.getElementById('cal-grid').innerHTML=html;
 }
 
-function updateStreakUI() {
-  document.getElementById('streak-main-num').textContent = state.stats.currentStreak;
-  document.getElementById('st-best').textContent = state.stats.bestStreak;
-  document.getElementById('st-perfect').textContent = state.stats.perfectDays;
-  document.getElementById('st-total').textContent = state.stats.totalCheckins;
-  document.getElementById('st-missed').textContent = state.stats.missedDays;
-  renderCalendar();
-}
-
-function renderCalendar() {
-  const now = new Date();
-  const year = now.getFullYear();
-  const month = now.getMonth();
-  const firstDay = new Date(year, month, 1).getDay();
-  const daysInMonth = new Date(year, month + 1, 0).getDate();
-  const today = getTodayStr();
-
-  // Labels
-  const labelsEl = document.getElementById('cal-labels');
-  labelsEl.innerHTML = ['SUN','MON','TUE','WED','THU','FRI','SAT']
-    .map(d => `<div class="cal-day-label">${d}</div>`).join('');
-
-  // Days
-  const gridEl = document.getElementById('cal-grid');
-  let html = '';
-
-  for (let i = 0; i < firstDay; i++) html += '<div></div>';
-
-  const doneSet = new Set(state.history.map(h => h.date));
-
-  for (let d = 1; d <= daysInMonth; d++) {
-    const dateStr = `${year}-${String(month+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
-    const isToday = dateStr === today;
-    const isFuture = dateStr > today;
-    const isDone = doneSet.has(dateStr);
-    const isMissed = !isFuture && !isDone && dateStr < today;
-
-    let cls = 'cal-day';
-    if (isToday) cls += ' today';
-    else if (isDone) cls += ' done';
-    else if (isMissed) cls += ' missed';
-    else if (isFuture) cls += ' future';
-
-    html += `<div class="${cls}">${d}</div>`;
+function updateAnalytics(){
+  const days7=[];
+  for(let i=6;i>=0;i--){
+    const d=new Date();d.setDate(d.getDate()-i);
+    const ds=`${d.getFullYear()}-${p(d.getMonth()+1)}-${p(d.getDate())}`;
+    days7.push({date:ds,day:dayStr(ds).slice(0,3),log:S.history.find(h=>h.date===ds)});
   }
-  gridEl.innerHTML = html;
-}
-
-function updateDetoxUI() {
-  updateNofapUI();
-  renderDetoxApps();
-  document.getElementById('relapse-count').textContent = state.stats.relapses || 0;
-}
-
-function updateNofapUI() {
-  const days = state.stats.nofapStreak || 0;
-  const el = document.getElementById('nofap-days');
-  if (el) el.textContent = days;
-  const msgEl = document.getElementById('nofap-msg');
-  if (msgEl) msgEl.textContent = `"${NOFAP_MESSAGES[days % NOFAP_MESSAGES.length]}"`;
-}
-
-function renderDetoxApps() {
-  const list = document.getElementById('detox-app-list');
-  if (!list) return;
-  if (!state.detoxApps.length) {
-    list.innerHTML = `<div class="empty-state"><div class="empty-state-icon">📱</div><div class="empty-state-text">No apps blacklisted yet.<br>Add the ones stealing your time.</div></div>`;
-    return;
-  }
-  list.innerHTML = state.detoxApps.map((app, i) => `
-    <div class="detox-app-item">
-      <div class="app-emoji">${app.emoji || '📱'}</div>
-      <div class="app-info">
-        <div class="app-name">${app.name}</div>
-        <div class="app-limit">BLACKLISTED • ${app.violations} violation${app.violations !== 1 ? 's' : ''}</div>
-      </div>
-      <div class="app-status ${app.violations > 0 ? 'violated' : ''}">
-        ${app.violations > 0 ? '⚠️ VIOLATED' : '✓ CLEAN'}
-      </div>
-    </div>
-  `).join('');
-}
-
-function updateAnalyticsUI() {
-  // Get last 7 days
-  const days7 = [];
-  for (let i = 6; i >= 0; i--) {
-    const d = new Date();
-    d.setDate(d.getDate() - i);
-    const str = `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
-    const log = state.history.find(h => h.date === str);
-    days7.push({ date: str, day: getDayOfWeek(str), log });
-  }
-
-  const scores = days7.map(d => d.log?.score || 0);
-  const focuses = days7.map(d => {
-    // Approximate from history or focus log
-    return d.log?.study || 0;
+  const scores=days7.map(d=>d.log?.score||0);
+  const studies=days7.map(d=>d.log?.study||0);
+  const sleeps=days7.map(d=>{
+    if(!d.log?.wake||!d.log?.sleep)return 0;
+    const wh=parseInt(d.log.wake.split(':')[0])+parseInt(d.log.wake.split(':')[1])/60;
+    const sh=parseInt(d.log.sleep.split(':')[0])+parseInt(d.log.sleep.split(':')[1])/60;
+    return sh>12?Math.round((wh+(24-sh))*10)/10:Math.round(Math.abs(wh-sh)*10)/10;
   });
-  const sleeps = days7.map(d => {
-    if (!d.log?.wake || !d.log?.sleep) return 0;
-    const wakeH = parseInt(d.log.wake.split(':')[0]) + parseInt(d.log.wake.split(':')[1])/60;
-    const sleepH = parseInt(d.log.sleep.split(':')[0]) + parseInt(d.log.sleep.split(':')[1])/60;
-    let diff = wakeH - sleepH;
-    if (diff < 0) diff += 24;
-    // If they slept last night: sleep time is PM, wake time is AM
-    // Approximate: wakeH + (24 - sleepH) if sleepH > 12
-    if (sleepH > 12) return Math.round((wakeH + (24 - sleepH)) * 10) / 10;
-    return Math.round(diff * 10) / 10;
-  });
-
-  const labels = days7.map(d => d.day.slice(0,3));
-
-  renderBarChart('chart-score', scores, labels, '#ff6b35', 100);
-  renderBarChart('chart-focus', focuses, labels, '#4361ee', 12);
-  renderBarChart('chart-sleep', sleeps, labels, '#06d6a0', 10);
-
-  // Summary
-  const avgScore = scores.filter(s => s > 0).length
-    ? Math.round(scores.filter(s => s > 0).reduce((a,b) => a+b, 0) / scores.filter(s => s > 0).length)
-    : 0;
-  document.getElementById('an-avg-score').textContent = avgScore;
-  const focusHrs = Math.floor(state.focus.todaySeconds / 3600);
-  document.getElementById('an-focus-hrs').textContent = focusHrs + 'h';
-  document.getElementById('an-streak').textContent = state.stats.currentStreak + '🔥';
-
-  // Habit completion bars
-  const logs = state.history.slice(-7).filter(l => l);
-  const habits = [
-    { key:'workout', label:'Workout 🏋️' },
-    { key:'cold', label:'Cold Shower 🚿' },
-    { key:'meditate', label:'Meditation 🧘' },
-    { key:'reading', label:'Reading 📖' },
-    { key:'nofap', label:'NoFap 🔥' },
-  ];
-  const habitBarsEl = document.getElementById('habit-bars');
-  if (habitBarsEl && logs.length > 0) {
-    habitBarsEl.innerHTML = habits.map(h => {
-      const pct = Math.round((logs.filter(l => l[h.key]).length / logs.length) * 100);
-      return `
-        <div>
-          <div style="display:flex;justify-content:space-between;margin-bottom:4px;">
-            <span style="font-size:13px;font-weight:600;color:var(--text2);">${h.label}</span>
-            <span style="font-family:var(--font-mono);font-size:13px;color:var(--text);">${pct}%</span>
-          </div>
-          <div style="height:6px;background:var(--surface3);border-radius:3px;">
-            <div style="height:100%;width:${pct}%;background:var(--fire);border-radius:3px;transition:width 0.8s ease;"></div>
-          </div>
-        </div>
-      `;
+  const labels=days7.map(d=>d.day);
+  renderBars('ch-score',scores,labels,'#ff6b35');
+  renderBars('ch-study',studies,labels,'#4361ee');
+  renderBars('ch-sleep',sleeps,labels,'#06d6a0');
+  const validScores=scores.filter(s=>s>0);
+  document.getElementById('an-score').textContent=validScores.length?Math.round(validScores.reduce((a,b)=>a+b,0)/validScores.length):0;
+  document.getElementById('an-focus').textContent=Math.floor(S.focus.todaySecs/3600)+'h';
+  document.getElementById('an-streak').textContent=S.stats.streak+'🔥';
+  const logs=S.history.slice(-7);
+  const habits=[{k:'workout',l:'Workout 🏋️'},{k:'cold',l:'Cold Shower 🚿'},{k:'meditate',l:'Meditation 🧘'},{k:'reading',l:'Reading 📖'},{k:'nofap',l:'NoFap 🔥'}];
+  const hbEl=document.getElementById('habit-bars');
+  if(logs.length>0){
+    hbEl.innerHTML=habits.map(h=>{
+      const pct=Math.round((logs.filter(l=>l[h.k]).length/logs.length)*100);
+      return`<div class="habit-bar-item"><div class="hb-row"><span class="hb-label">${h.l}</span><span class="hb-pct">${pct}%</span></div><div class="hb-track"><div class="hb-fill" style="width:${pct}%"></div></div></div>`;
     }).join('');
-  } else if (habitBarsEl) {
-    habitBarsEl.innerHTML = `<div style="color:var(--text3);font-size:14px;text-align:center;padding:12px;">Complete daily check-ins to see habit stats.</div>`;
+  } else {
+    hbEl.innerHTML='<div style="color:var(--t3);font-size:15px;text-align:center;padding:16px;">Complete check-ins to see habit stats.</div>';
   }
 }
 
-function renderBarChart(containerId, values, labels, color, maxVal) {
-  const container = document.getElementById(containerId);
-  if (!container) return;
-  const maxV = Math.max(...values, 1);
-  const displayMax = maxVal || maxV;
+function renderBars(id,vals,labels,color){
+  const el=document.getElementById(id);if(!el)return;
+  const mx=Math.max(...vals,1);
+  el.innerHTML=vals.map((v,i)=>`
+    <div class="bwrap">
+      <div class="bval">${v>0?v:''}</div>
+      <div class="bar" style="height:${Math.max((v/mx)*100,v>0?4:0)}%;background:${v>0?color:'var(--s3)'};width:100%;"></div>
+      <div class="bday">${labels[i]||''}</div>
+    </div>`).join('');
+}
 
-  container.innerHTML = values.map((v, i) => {
-    const heightPct = Math.round((v / displayMax) * 100);
-    return `
-      <div class="bar-wrap">
-        <div class="bar-val">${v > 0 ? v : ''}</div>
-        <div class="bar" style="height:${Math.max(heightPct, v > 0 ? 4 : 0)}%;background:${v > 0 ? color : 'var(--surface3)'};width:100%;min-height:${v > 0 ? '4px' : '4px'};"></div>
-        <div class="bar-day">${labels[i] || ''}</div>
-      </div>
-    `;
+function updateProfile(){
+  const name=S.user.name||'WARRIOR';
+  document.getElementById('p-av').textContent=name[0]||'M';
+  document.getElementById('p-name').textContent=name;
+  const rank=getRank(S.stats.streak);
+  document.getElementById('p-rank').textContent=`${rank.icon} RANK: ${rank.name}`;
+  if(S.user.joinDate){
+    const days=Math.floor((new Date()-new Date(S.user.joinDate))/86400000);
+    document.getElementById('p-days').textContent=`DAY ${days} OF YOUR JOURNEY`;
+  }
+  const ri=RANKS.indexOf(rank);
+  document.getElementById('rank-road').innerHTML=RANKS.map((r,i)=>{
+    let cls='rr-item locked',badge='LOCKED';
+    if(i<ri){cls='rr-item done';badge='DONE ✓';}
+    if(i===ri){cls='rr-item cur';badge='CURRENT';}
+    return`<div class="${cls}"><div class="rr-ico">${r.icon}</div><div><div class="rr-name">${r.name}</div><div class="rr-req">${r.req} day streak</div></div><div class="rr-badge">${badge}</div></div>`;
   }).join('');
 }
 
-function updateProfileUI() {
-  const name = state.user.name || 'WARRIOR';
-  document.getElementById('profile-username').textContent = name;
-  document.getElementById('profile-avatar').textContent = name[0] || 'M';
-
-  const rank = getRank(state.stats.currentStreak);
-  document.getElementById('profile-rank-label').textContent = `${rank.icon} RANK: ${rank.name}`;
-
-  const joinDate = state.user.joinDate;
-  if (joinDate) {
-    const days = Math.floor((new Date() - new Date(joinDate)) / 86400000);
-    document.getElementById('profile-days').textContent = `DAY ${days} OF YOUR JOURNEY`;
-  }
-
-  // Rank roadmap
-  const roadmapEl = document.getElementById('rank-roadmap');
-  const currentRankIndex = RANKS.indexOf(rank);
-  roadmapEl.innerHTML = RANKS.map((r, i) => {
-    let cls = 'rank-step locked';
-    let badge = 'LOCKED';
-    if (i < currentRankIndex) { cls = 'rank-step completed'; badge = 'DONE ✓'; }
-    if (i === currentRankIndex) { cls = 'rank-step current'; badge = 'CURRENT'; }
-    const nextRank = RANKS[i + 1];
-    const reqText = nextRank
-      ? `${r.req} day streak • ${r.req} days to unlock next`
-      : `${r.req} day streak • MAX RANK`;
-    return `
-      <div class="${cls}">
-        <div class="rank-step-icon">${r.icon}</div>
-        <div>
-          <div class="rank-step-name">${r.name}</div>
-          <div class="rank-step-req">${r.req} day streak</div>
-        </div>
-        <div class="rank-step-badge">${badge}</div>
-      </div>
-    `;
-  }).join('');
+function updateFocusUI(){
+  document.getElementById('focus-today').textContent=fmtTime(S.focus.todaySecs);
+  renderSessions();
 }
 
-function updateFocusUI() {
-  const total = state.focus.todaySeconds || 0;
-  document.getElementById('focus-total-today').textContent = formatFocusTime(total);
-  renderSessionLog();
+function fmtTime(s){
+  const h=Math.floor(s/3600),m=Math.floor((s%3600)/60);
+  return h>0?`${h}h ${m}m`:`${m}m`;
 }
 
-// ---- FOCUS TIMER ----
-function setTimerMode(mode, el) {
-  if (timerRunning) return;
-  document.querySelectorAll('.timer-mode-btn').forEach(b => b.classList.remove('active'));
-  el.classList.add('active');
+function renderSessions(){
+  const el=document.getElementById('sess-list');if(!el)return;
+  const t=today();
+  const list=(S.focus.sessions||[]).filter(s=>s.date===t).reverse();
+  if(!list.length){el.innerHTML='<div class="empty"><div class="empty-ico">⏱️</div><div class="empty-txt">No sessions yet today.<br>Start your first deep work session.</div></div>';return;}
+  el.innerHTML=list.map(s=>`<div class="sess-item"><div class="sess-dot"></div><div class="sess-info"><div class="sess-name">Session #${s.num}</div><div class="sess-time">${s.time}</div></div><div class="sess-dur">${Math.floor(s.duration/60)}m</div></div>`).join('');
+}
 
-  if (mode === 'custom') {
-    const mins = prompt('Enter work duration (minutes):');
-    if (mins && !isNaN(mins)) {
-      timerTotal = parseInt(mins) * 60;
-      timerBreakSeconds = Math.max(60, parseInt(mins) * 60 / 5);
-    }
+// ---- TIMER ----
+function setMode(mode,el){
+  if(tRunning)return;
+  document.querySelectorAll('.tm-btn').forEach(b=>b.classList.remove('on'));
+  el.classList.add('on');
+  if(mode==='custom'){
+    const m=prompt('Work duration (minutes):');
+    if(m&&!isNaN(m)){tTotal=parseInt(m)*60;tBreakSecs=Math.max(60,parseInt(m)*12);}
   } else {
-    timerTotal = parseInt(el.dataset.work);
-    timerBreakSeconds = parseInt(el.dataset.break);
+    tTotal=parseInt(el.dataset.w);tBreakSecs=parseInt(el.dataset.b);
   }
-  timerSeconds = timerTotal;
-  timerIsBreak = false;
+  tSecs=tTotal;tIsBreak=false;
+  updateTimerDisplay();resetRing();
+}
+function toggleTimer(){tRunning?pauseTimer():startTimer();}
+function startTimer(){
+  tRunning=true;
+  document.getElementById('t-play-btn').textContent='⏸';
+  tInterval=setInterval(tickTimer,1000);
+}
+function pauseTimer(){
+  tRunning=false;clearInterval(tInterval);
+  document.getElementById('t-play-btn').textContent='▶';
+}
+function resetTimer(){
+  pauseTimer();tSecs=tTotal;tIsBreak=false;
+  updateTimerDisplay();resetRing();
+  document.getElementById('t-phase').textContent='FOCUS';
+}
+function skipTimer(){
+  if(tIsBreak){tIsBreak=false;tSecs=tTotal;document.getElementById('t-phase').textContent='FOCUS';}
+  else{completeSession();}
   updateTimerDisplay();
-  resetTimerRing();
 }
-
-function toggleTimer() {
-  if (timerRunning) {
-    pauseTimer();
-  } else {
-    startTimer();
+function tickTimer(){
+  tSecs--;updateTimerDisplay();updateRing();
+  if(tSecs<=0){
+    if(!tIsBreak){completeSession();}
+    else{tIsBreak=false;tSecs=tTotal;document.getElementById('t-phase').textContent='FOCUS';toast('🎯','Break over. Lock back in!');}
   }
 }
-
-function startTimer() {
-  timerRunning = true;
-  timerStartTime = Date.now() - ((timerTotal - timerSeconds) * 1000);
-  document.getElementById('timer-start-btn').textContent = '⏸';
-  timerInterval = setInterval(tickTimer, 1000);
+function completeSession(){
+  tSessCount++;
+  const sess={date:today(),duration:tTotal,time:new Date().toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit'}),num:tSessCount};
+  S.focus.sessions=S.focus.sessions||[];
+  S.focus.sessions.push(sess);
+  S.focus.todaySecs=(S.focus.todaySecs||0)+tTotal;
+  S.focus.todayDate=today();
+  save();
+  toast('✅',`Session ${tSessCount} complete! +${Math.floor(tTotal/60)}m`);
+  tIsBreak=true;tSecs=tBreakSecs;
+  document.getElementById('t-phase').textContent='BREAK';
+  document.getElementById('t-sess').textContent=`SESSION #${tSessCount+1}`;
+  updateTimerDisplay();updateFocusUI();
 }
-
-function pauseTimer() {
-  timerRunning = false;
-  clearInterval(timerInterval);
-  document.getElementById('timer-start-btn').textContent = '▶';
+function updateTimerDisplay(){
+  const m=Math.floor(tSecs/60),s=tSecs%60;
+  document.getElementById('t-display').textContent=`${p(m)}:${p(s)}`;
 }
-
-function resetTimer() {
-  pauseTimer();
-  timerSeconds = timerTotal;
-  timerIsBreak = false;
-  updateTimerDisplay();
-  resetTimerRing();
+function updateRing(){
+  const total=tIsBreak?tBreakSecs:tTotal;
+  const circ=2*Math.PI*120;
+  const prog=tSecs/total;
+  document.getElementById('t-ring').style.strokeDashoffset=circ*(1-prog);
 }
+function resetRing(){document.getElementById('t-ring').style.strokeDashoffset=0;}
 
-function skipTimer() {
-  if (timerIsBreak) {
-    timerIsBreak = false;
-    timerSeconds = timerTotal;
-    document.getElementById('timer-phase-label').textContent = 'FOCUS';
-  } else {
-    completeSession();
-  }
+// ---- SHAME ----
+function showShame(lost){
+  document.getElementById('sh-lost').textContent=lost+' days';
+  document.getElementById('sh-best').textContent=S.stats.best+' days';
+  document.getElementById('sh-date').textContent=dateDisp(today());
+  document.getElementById('shame').classList.add('show');
 }
-
-function tickTimer() {
-  timerSeconds--;
-  updateTimerDisplay();
-  updateTimerRing();
-  if (timerSeconds <= 0) {
-    if (!timerIsBreak) {
-      completeSession();
-    } else {
-      // Break done
-      timerIsBreak = false;
-      timerSeconds = timerTotal;
-      document.getElementById('timer-phase-label').textContent = 'FOCUS';
-      showToast('🎯', 'Break over. Lock back in!');
-    }
-  }
-}
-
-function completeSession() {
-  const duration = timerTotal;
-  timerSessionCount++;
-
-  // Log session
-  const session = {
-    date: getTodayStr(),
-    duration: duration,
-    time: new Date().toLocaleTimeString('en-IN', {hour:'2-digit', minute:'2-digit'}),
-    num: timerSessionCount,
-  };
-  state.focus.sessions = state.focus.sessions || [];
-  state.focus.sessions.push(session);
-  state.focus.todaySeconds = (state.focus.todaySeconds || 0) + duration;
-  state.focus.todayDate = getTodayStr();
-  saveState();
-
-  showToast('✅', `Session ${timerSessionCount} complete! +${Math.floor(duration/60)} min`);
-
-  // Start break
-  timerIsBreak = true;
-  timerSeconds = timerBreakSeconds;
-  document.getElementById('timer-phase-label').textContent = 'BREAK';
-  document.getElementById('timer-session-num').textContent = `SESSION #${timerSessionCount + 1}`;
-  updateTimerDisplay();
-  updateFocusUI();
-}
-
-function updateTimerDisplay() {
-  const mins = Math.floor(timerSeconds / 60);
-  const secs = timerSeconds % 60;
-  document.getElementById('timer-display').textContent =
-    `${String(mins).padStart(2,'0')}:${String(secs).padStart(2,'0')}`;
-}
-
-function updateTimerRing() {
-  const total = timerIsBreak ? timerBreakSeconds : timerTotal;
-  const circumference = 2 * Math.PI * 110;
-  const progress = timerSeconds / total;
-  const offset = circumference * (1 - progress);
-  document.getElementById('timer-ring').style.strokeDashoffset = circumference - (progress * circumference);
-}
-
-function resetTimerRing() {
-  const circumference = 2 * Math.PI * 110;
-  document.getElementById('timer-ring').style.strokeDashoffset = 0;
-}
-
-function formatFocusTime(seconds) {
-  const h = Math.floor(seconds / 3600);
-  const m = Math.floor((seconds % 3600) / 60);
-  if (h > 0) return `${h}h ${m}m`;
-  return `${m}m`;
-}
-
-function renderSessionLog() {
-  const el = document.getElementById('session-log-list');
-  if (!el) return;
-  const today = getTodayStr();
-  const todaySessions = (state.focus.sessions || []).filter(s => s.date === today).reverse();
-  if (!todaySessions.length) {
-    el.innerHTML = `<div class="empty-state"><div class="empty-state-icon">⏱️</div><div class="empty-state-text">No sessions yet today.<br>Start your first deep work session.</div></div>`;
-    return;
-  }
-  el.innerHTML = todaySessions.map(s => `
-    <div class="session-item">
-      <div class="session-dot"></div>
-      <div class="session-info">
-        <div class="session-name">Session #${s.num}</div>
-        <div class="session-time">${s.time}</div>
-      </div>
-      <div class="session-dur">${Math.floor(s.duration / 60)}m</div>
-    </div>
-  `).join('');
-}
+function closeShame(){document.getElementById('shame').classList.remove('show');}
 
 // ---- DETOX ----
-function logRelapse() {
-  state.stats.relapses = (state.stats.relapses || 0) + 1;
-  saveState();
-  document.getElementById('relapse-count').textContent = state.stats.relapses;
-  showToast('⚠️', 'Relapse logged. Get back on track NOW.');
+function openAddAppModal(){document.getElementById('modal-app').classList.add('show');}
+function closeModal(id){document.getElementById(id).classList.remove('show');}
+function addApp(){
+  const name=document.getElementById('m-app-name').value.trim();
+  const emoji=document.getElementById('m-app-emoji').value.trim()||'📱';
+  if(!name)return;
+  S.detox.push({name,emoji,violations:0});
+  save();closeModal('modal-app');
+  document.getElementById('m-app-name').value='';
+  document.getElementById('m-app-emoji').value='';
+  toast('🚫',`${name} blacklisted.`);
+}
+function logRelapse(){
+  S.stats.relapses=(S.stats.relapses||0)+1;
+  document.getElementById('relapse-num').textContent=S.stats.relapses;
+  save();toast('⚠️','Relapse logged. Get back on track NOW.');
+}
+function resetNofap(){
+  if(!confirm('Reset NoFap streak? Cannot be undone.'))return;
+  const lost=S.stats.nofapStreak;
+  S.stats.nofapStreak=0;S.stats.nofapStart=today();
+  S.stats.relapses=(S.stats.relapses||0)+1;
+  save();
+  if(lost>0)showShame(lost);
+  toast('💔','Stay strong. Start again. NOW.');
+}
+function nofapMotivate(){toast('🔱',NOFAP_MSGS[Math.floor(Math.random()*NOFAP_MSGS.length)]);}
+
+// ---- PROFILE ----
+function editName(){
+  const n=prompt('New name:',S.user.name);
+  if(n&&n.trim()){S.user.name=n.trim().toUpperCase();save();updateProfile();updateHome();toast('✅','Name updated.');}
+}
+function resetAll(){
+  if(!confirm('DELETE ALL DATA? Cannot be undone.'))return;
+  if(!confirm('Are you 100% sure?'))return;
+  localStorage.removeItem('mm2');location.reload();
 }
 
-function resetNofap() {
-  if (!confirm('Reset your NoFap streak? This cannot be undone.')) return;
-  state.stats.nofapStreak = 0;
-  state.stats.nofapStartDate = getTodayStr();
-  state.stats.relapses = (state.stats.relapses || 0) + 1;
-  saveState();
-  updateNofapUI();
-  document.getElementById('relapse-count').textContent = state.stats.relapses;
-  showShame(state.stats.nofapStreak);
+// ---- TOAST ----
+let toastTimer=null;
+function toast(ico,txt){
+  const el=document.getElementById('toast');
+  document.getElementById('t-ico').textContent=ico;
+  document.getElementById('t-txt').textContent=txt;
+  el.classList.remove('show');
+  void el.offsetWidth;
+  el.classList.add('show');
+  if(toastTimer)clearTimeout(toastTimer);
+  toastTimer=setTimeout(()=>el.classList.remove('show'),3500);
 }
 
-function showNofapMotivation() {
-  const msg = NOFAP_MESSAGES[Math.floor(Math.random() * NOFAP_MESSAGES.length)];
-  showToast('🔱', msg);
-}
-
-function openAddAppModal() {
-  document.getElementById('modal-add-app').classList.add('active');
-}
-function closeModal(id) {
-  document.getElementById(id).classList.remove('active');
-}
-
-function addApp() {
-  const name = document.getElementById('modal-app-name').value.trim();
-  const emoji = document.getElementById('modal-app-emoji').value.trim() || '📱';
-  if (!name) return;
-  state.detoxApps.push({ name, emoji, violations: 0 });
-  saveState();
-  renderDetoxApps();
-  closeModal('modal-add-app');
-  document.getElementById('modal-app-name').value = '';
-  document.getElementById('modal-app-emoji').value = '';
-  showToast('🚫', `${name} blacklisted.`);
-}
-
-// ---- PROFILE / SETTINGS ----
-function editName() {
-  const newName = prompt('Enter new name:', state.user.name);
-  if (newName && newName.trim()) {
-    state.user.name = newName.trim().toUpperCase();
-    saveState();
-    updateProfileUI();
-    updateHomeUI();
-    showToast('✅', 'Name updated.');
-  }
-}
-
-function resetAllData() {
-  if (!confirm('DELETE ALL DATA? This cannot be undone.')) return;
-  if (!confirm('Are you absolutely sure? All streaks and progress will be lost.')) return;
-  localStorage.removeItem('monkmode_v1');
-  location.reload();
-}
-
-// ---- NOTIFICATIONS / TOAST ----
-function showToast(icon, text) {
-  const toast = document.getElementById('toast');
-  document.getElementById('toast-icon').textContent = icon;
-  document.getElementById('toast-text').textContent = text;
-  toast.classList.add('show');
-  setTimeout(() => toast.classList.remove('show'), 3200);
-}
-
-function maybeShowMotivation() {
-  const msgs = NOTIFICATIONS;
-  const hour = new Date().getHours();
-  let msg;
-  if (hour >= 5 && hour < 10) msg = "Rise early. Dominate the day.";
-  else if (hour >= 22) msg = "End your day with discipline. Log your check-in.";
-  else msg = msgs[Math.floor(Math.random() * msgs.length)];
-
-  setTimeout(() => showToast('🔥', msg), 2000);
-}
-
-// ---- NUMBER ANIMATION ----
-function animateNumber(id, target) {
-  const el = document.getElementById(id);
-  if (!el) return;
-  const start = parseInt(el.textContent) || 0;
-  const diff = target - start;
-  const dur = 600;
-  const startTime = performance.now();
-  function step(now) {
-    const elapsed = now - startTime;
-    const progress = Math.min(elapsed / dur, 1);
-    const eased = 1 - Math.pow(1 - progress, 3);
-    el.textContent = Math.round(start + diff * eased);
-    if (progress < 1) requestAnimationFrame(step);
+// ---- NUMBER ANIM ----
+function animNum(id,target){
+  const el=document.getElementById(id);if(!el)return;
+  const start=parseInt(el.textContent)||0,diff=target-start,dur=600,t0=performance.now();
+  function step(now){
+    const prog=Math.min((now-t0)/dur,1),ease=1-Math.pow(1-prog,3);
+    el.textContent=Math.round(start+diff*ease);
+    if(prog<1)requestAnimationFrame(step);
   }
   requestAnimationFrame(step);
 }
 
-// ---- CLOSE MODAL ON OUTSIDE CLICK ----
-document.querySelectorAll('.modal-overlay').forEach(overlay => {
-  overlay.addEventListener('click', function(e) {
-    if (e.target === this) this.classList.remove('active');
-  });
+// ---- CLOSE MODALS ON OUTSIDE TAP ----
+document.querySelectorAll('.modal').forEach(m=>{
+  m.addEventListener('click',function(e){if(e.target===this)this.classList.remove('show');});
 });
 
-// ---- INIT ----
-window.addEventListener('DOMContentLoaded', init);
+// ---- PREVENT DOUBLE TAP ZOOM ----
+let lt=0;
+document.addEventListener('touchend',e=>{const n=Date.now();if(n-lt<300)e.preventDefault();lt=n;},{passive:false});
 
-// Prevent double-tap zoom
-let lastTap = 0;
-document.addEventListener('touchend', function(e) {
-  const now = Date.now();
-  if (now - lastTap < 300) e.preventDefault();
-  lastTap = now;
-}, { passive: false });
-
-// Keep screen awake during timer (if supported)
-let wakeLock = null;
-async function requestWakeLock() {
-  try {
-    if ('wakeLock' in navigator) {
-      wakeLock = await navigator.wakeLock.request('screen');
-    }
-  } catch(e) {}
-}
-document.getElementById('timer-start-btn').addEventListener('click', requestWakeLock);
+window.addEventListener('DOMContentLoaded',init);
 </script>
 </body>
 </html>
