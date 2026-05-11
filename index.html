@@ -1,0 +1,2652 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="theme-color" content="#0a0a0a">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<title>MONK MODE</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Share+Tech+Mono&family=Rajdhani:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+/* ============================
+   ROOT VARIABLES & RESET
+============================ */
+:root {
+  --bg: #080808;
+  --surface: #111111;
+  --surface2: #1a1a1a;
+  --surface3: #242424;
+  --border: #2a2a2a;
+  --red: #e63946;
+  --red-dim: rgba(230,57,70,0.15);
+  --orange: #ff6b35;
+  --fire: linear-gradient(135deg, #e63946, #ff6b35);
+  --gold: #ffd60a;
+  --green: #06d6a0;
+  --blue: #4361ee;
+  --text: #f0f0f0;
+  --text2: #888888;
+  --text3: #555555;
+  --font-display: 'Bebas Neue', cursive;
+  --font-mono: 'Share Tech Mono', monospace;
+  --font-body: 'Rajdhani', sans-serif;
+}
+
+* { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+
+html, body {
+  width:100%; height:100%; overflow:hidden;
+  background:var(--bg); color:var(--text);
+  font-family:var(--font-body); font-size:16px;
+}
+
+/* ============================
+   SCROLLBAR & SELECTION
+============================ */
+::-webkit-scrollbar { width:3px; }
+::-webkit-scrollbar-track { background:var(--bg); }
+::-webkit-scrollbar-thumb { background:var(--red); border-radius:2px; }
+::selection { background:var(--red); color:#fff; }
+
+/* ============================
+   APP SHELL
+============================ */
+#app {
+  width:100%; height:100vh;
+  display:flex; flex-direction:column;
+  overflow:hidden; position:relative;
+}
+
+.screen {
+  display:none;
+  flex-direction:column;
+  width:100%; height:100%;
+  overflow-y:auto;
+  overflow-x:hidden;
+  animation: fadeIn 0.25s ease;
+}
+.screen.active { display:flex; }
+
+@keyframes fadeIn { from{opacity:0; transform:translateY(8px)} to{opacity:1; transform:translateY(0)} }
+@keyframes slideUp { from{opacity:0; transform:translateY(30px)} to{opacity:1; transform:translateY(0)} }
+@keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.5} }
+@keyframes fireFlicker {
+  0%,100%{text-shadow:0 0 10px #ff6b35, 0 0 20px #e63946}
+  50%{text-shadow:0 0 20px #ff6b35, 0 0 40px #e63946, 0 0 60px #ff6b35}
+}
+@keyframes shake {
+  0%,100%{transform:translateX(0)}
+  20%{transform:translateX(-8px)}
+  40%{transform:translateX(8px)}
+  60%{transform:translateX(-5px)}
+  80%{transform:translateX(5px)}
+}
+@keyframes countUp { from{transform:scale(0.8) translateY(5px);opacity:0} to{transform:scale(1) translateY(0);opacity:1} }
+@keyframes progressFill { from{width:0} to{width:var(--w)} }
+@keyframes spin { from{transform:rotate(0deg)} to{transform:rotate(360deg)} }
+@keyframes breathe {
+  0%,100%{transform:scale(1);opacity:0.7}
+  50%{transform:scale(1.15);opacity:1}
+}
+
+/* ============================
+   BOTTOM NAV
+============================ */
+#bottom-nav {
+  display:none;
+  position:fixed; bottom:0; left:0; right:0;
+  height:64px;
+  background:rgba(10,10,10,0.95);
+  backdrop-filter:blur(20px);
+  border-top:1px solid var(--border);
+  z-index:1000;
+  flex-direction:row;
+  align-items:stretch;
+}
+#bottom-nav.visible { display:flex; }
+.nav-item {
+  flex:1; display:flex; flex-direction:column;
+  align-items:center; justify-content:center;
+  gap:3px; cursor:pointer;
+  transition:all 0.2s;
+  color:var(--text3);
+  font-family:var(--font-body);
+  font-size:10px; font-weight:600;
+  letter-spacing:0.05em;
+  text-transform:uppercase;
+  padding-bottom:8px;
+  border:none; background:none;
+  position:relative;
+}
+.nav-item.active { color:var(--red); }
+.nav-item.active::after {
+  content:'';
+  position:absolute; top:0; left:50%; transform:translateX(-50%);
+  width:24px; height:2px;
+  background:var(--fire);
+  border-radius:0 0 2px 2px;
+}
+.nav-icon { font-size:20px; line-height:1; }
+
+/* ============================
+   ONBOARDING
+============================ */
+#screen-onboarding {
+  background:var(--bg);
+  justify-content:center; align-items:center;
+  padding:40px 24px;
+}
+.onboard-slide {
+  display:none;
+  flex-direction:column;
+  align-items:center;
+  text-align:center;
+  width:100%;
+  animation:slideUp 0.4s ease;
+}
+.onboard-slide.active { display:flex; }
+
+.ob-icon { font-size:80px; margin-bottom:24px; animation:breathe 3s infinite; }
+.ob-title {
+  font-family:var(--font-display);
+  font-size:52px; line-height:1;
+  background:var(--fire);
+  -webkit-background-clip:text;
+  -webkit-text-fill-color:transparent;
+  margin-bottom:16px;
+}
+.ob-sub {
+  font-size:17px; color:var(--text2);
+  line-height:1.6; font-weight:500;
+  margin-bottom:40px;
+  max-width:300px;
+}
+.ob-dots {
+  display:flex; gap:8px; margin-bottom:40px;
+}
+.ob-dot {
+  width:8px; height:8px; border-radius:50%;
+  background:var(--surface3); transition:all 0.3s;
+}
+.ob-dot.active { width:24px; border-radius:4px; background:var(--red); }
+
+.ob-name-input {
+  width:100%; padding:18px 20px;
+  background:var(--surface2);
+  border:1px solid var(--border);
+  border-radius:12px;
+  color:var(--text); font-size:18px;
+  font-family:var(--font-body); font-weight:600;
+  outline:none; margin-bottom:16px;
+  transition:border-color 0.2s;
+}
+.ob-name-input:focus { border-color:var(--red); }
+.ob-name-input::placeholder { color:var(--text3); }
+
+.ob-goal-grid { display:grid; grid-template-columns:1fr 1fr; gap:12px; width:100%; margin-bottom:24px; }
+.ob-goal-btn {
+  padding:14px 12px;
+  background:var(--surface2);
+  border:2px solid var(--border);
+  border-radius:12px;
+  color:var(--text2); font-size:14px;
+  font-family:var(--font-body); font-weight:600;
+  cursor:pointer; transition:all 0.2s;
+  text-align:center;
+}
+.ob-goal-btn.selected { border-color:var(--red); color:var(--text); background:var(--red-dim); }
+
+/* ============================
+   BUTTONS
+============================ */
+.btn {
+  width:100%; padding:18px;
+  border-radius:12px;
+  border:none; cursor:pointer;
+  font-family:var(--font-display);
+  font-size:22px; letter-spacing:2px;
+  transition:all 0.15s;
+  position:relative; overflow:hidden;
+}
+.btn::after {
+  content:'';
+  position:absolute; inset:0;
+  background:rgba(255,255,255,0.1);
+  opacity:0; transition:opacity 0.15s;
+}
+.btn:active::after { opacity:1; }
+.btn-primary {
+  background:var(--fire);
+  color:#fff;
+  box-shadow:0 4px 20px rgba(230,57,70,0.4);
+}
+.btn-primary:hover { box-shadow:0 6px 30px rgba(230,57,70,0.6); transform:translateY(-1px); }
+.btn-ghost {
+  background:transparent;
+  border:1px solid var(--border);
+  color:var(--text2);
+}
+.btn-danger { background:var(--red); color:#fff; }
+.btn-sm {
+  width:auto; padding:10px 20px;
+  font-size:16px; letter-spacing:1px;
+}
+
+/* ============================
+   HOME SCREEN
+============================ */
+#screen-home {
+  padding:0 0 80px;
+}
+.home-header {
+  padding:20px 20px 16px;
+  display:flex; justify-content:space-between; align-items:flex-start;
+}
+.home-greeting {
+  font-family:var(--font-display);
+  font-size:14px; letter-spacing:3px;
+  color:var(--text3); text-transform:uppercase;
+}
+.home-name {
+  font-family:var(--font-display);
+  font-size:32px; line-height:1.1;
+  color:var(--text);
+}
+.home-date {
+  font-family:var(--font-mono);
+  font-size:11px; color:var(--text3);
+  text-align:right; margin-top:4px;
+}
+
+/* Monk Score Ring */
+.score-section {
+  display:flex; justify-content:center;
+  padding:20px 20px 0;
+}
+.score-ring-wrap {
+  position:relative;
+  width:200px; height:200px;
+}
+.score-ring-wrap svg {
+  transform:rotate(-90deg);
+}
+.score-ring-bg { fill:none; stroke:var(--surface3); stroke-width:12; }
+.score-ring-fill {
+  fill:none; stroke:url(#scoreGrad); stroke-width:12;
+  stroke-linecap:round;
+  stroke-dasharray:565.5;
+  stroke-dashoffset:565.5;
+  transition:stroke-dashoffset 1s cubic-bezier(0.4,0,0.2,1);
+}
+.score-center {
+  position:absolute; inset:0;
+  display:flex; flex-direction:column;
+  align-items:center; justify-content:center;
+}
+.score-num {
+  font-family:var(--font-display);
+  font-size:62px; line-height:1;
+  background:var(--fire);
+  -webkit-background-clip:text;
+  -webkit-text-fill-color:transparent;
+}
+.score-label {
+  font-family:var(--font-mono);
+  font-size:10px; color:var(--text3);
+  letter-spacing:3px;
+}
+.score-rank {
+  font-family:var(--font-display);
+  font-size:16px; color:var(--orange);
+  letter-spacing:2px;
+}
+
+/* Streak Row */
+.streak-row {
+  display:flex; gap:12px;
+  padding:20px 20px 0;
+}
+.streak-card {
+  flex:1;
+  background:var(--surface);
+  border:1px solid var(--border);
+  border-radius:16px;
+  padding:16px 12px;
+  text-align:center;
+  position:relative; overflow:hidden;
+}
+.streak-card::before {
+  content:'';
+  position:absolute; top:0; left:0; right:0;
+  height:2px;
+  background:var(--fire);
+}
+.streak-val {
+  font-family:var(--font-display);
+  font-size:38px; line-height:1;
+  color:var(--text);
+  animation:countUp 0.5s ease;
+}
+.streak-val.fire { color:var(--orange); animation:fireFlicker 2s infinite; }
+.streak-lbl {
+  font-size:11px; font-weight:700;
+  color:var(--text3); letter-spacing:2px;
+  text-transform:uppercase;
+  margin-top:4px;
+}
+.streak-emoji { font-size:20px; display:block; margin-bottom:4px; }
+
+/* Quick Stats */
+.section-title {
+  font-family:var(--font-display);
+  font-size:22px; letter-spacing:3px;
+  color:var(--text); text-transform:uppercase;
+  padding:20px 20px 12px;
+}
+
+.quick-grid { display:grid; grid-template-columns:1fr 1fr; gap:10px; padding:0 20px; }
+.quick-card {
+  background:var(--surface);
+  border:1px solid var(--border);
+  border-radius:14px;
+  padding:16px;
+  cursor:pointer;
+  transition:all 0.2s;
+  position:relative; overflow:hidden;
+}
+.quick-card:active { transform:scale(0.97); border-color:var(--red); }
+.qc-icon { font-size:24px; margin-bottom:8px; }
+.qc-val {
+  font-family:var(--font-display);
+  font-size:28px; color:var(--text);
+}
+.qc-lbl { font-size:12px; color:var(--text3); font-weight:600; letter-spacing:1px; margin-top:2px; }
+.qc-status {
+  position:absolute; top:12px; right:12px;
+  width:8px; height:8px; border-radius:50%;
+}
+.qc-status.done { background:var(--green); box-shadow:0 0 8px var(--green); }
+.qc-status.pending { background:var(--text3); }
+
+/* Check-in CTA */
+.checkin-cta {
+  margin:20px;
+  background:linear-gradient(135deg, #1a0a0a, #0d0d0d);
+  border:1px solid rgba(230,57,70,0.3);
+  border-radius:16px;
+  padding:20px;
+  display:flex; align-items:center; gap:16px;
+  cursor:pointer;
+  transition:all 0.2s;
+}
+.checkin-cta:active { transform:scale(0.98); }
+.cta-icon { font-size:36px; }
+.cta-text { flex:1; }
+.cta-title {
+  font-family:var(--font-display);
+  font-size:20px; letter-spacing:2px;
+  color:var(--text);
+}
+.cta-sub { font-size:13px; color:var(--text3); margin-top:2px; font-weight:500; }
+.cta-arrow { font-size:24px; color:var(--red); }
+
+/* Rank Badge */
+.rank-badge {
+  margin:0 20px 20px;
+  background:var(--surface);
+  border:1px solid var(--border);
+  border-radius:16px;
+  padding:16px 20px;
+  display:flex; align-items:center; gap:16px;
+}
+.rank-icon { font-size:40px; }
+.rank-info { flex:1; }
+.rank-name {
+  font-family:var(--font-display);
+  font-size:26px; color:var(--gold);
+  letter-spacing:2px;
+}
+.rank-sub { font-size:13px; color:var(--text2); font-weight:500; }
+.rank-progress {
+  margin-top:8px;
+  height:4px; background:var(--surface3);
+  border-radius:2px; overflow:hidden;
+}
+.rank-fill {
+  height:100%; background:var(--fire);
+  border-radius:2px;
+  transition:width 1s ease;
+}
+
+/* ============================
+   CHECK-IN SCREEN
+============================ */
+#screen-checkin { padding:0 0 100px; }
+.checkin-header {
+  padding:20px;
+  background:linear-gradient(180deg, #0d0508 0%, var(--bg) 100%);
+}
+.checkin-title {
+  font-family:var(--font-display);
+  font-size:40px; letter-spacing:3px;
+  background:var(--fire);
+  -webkit-background-clip:text;
+  -webkit-text-fill-color:transparent;
+}
+.checkin-sub { font-size:14px; color:var(--text3); font-weight:600; letter-spacing:1px; margin-top:4px; }
+
+.ci-section { padding:0 20px 4px; }
+.ci-section-title {
+  font-family:var(--font-display);
+  font-size:14px; letter-spacing:4px;
+  color:var(--text3); text-transform:uppercase;
+  margin:20px 0 12px;
+  display:flex; align-items:center; gap:8px;
+}
+.ci-section-title::after {
+  content:''; flex:1; height:1px; background:var(--border);
+}
+
+.ci-row {
+  display:flex; align-items:center;
+  background:var(--surface);
+  border:1px solid var(--border);
+  border-radius:14px;
+  padding:14px 16px;
+  margin-bottom:10px;
+  gap:14px;
+  cursor:pointer;
+  transition:all 0.2s;
+}
+.ci-row:active { border-color:var(--red); background:var(--red-dim); }
+.ci-row-icon { font-size:24px; width:32px; text-align:center; }
+.ci-row-label { flex:1; font-size:16px; font-weight:600; color:var(--text); }
+.ci-row-value {
+  font-family:var(--font-mono);
+  font-size:14px; color:var(--text2);
+}
+.ci-toggle {
+  width:48px; height:26px;
+  background:var(--surface3);
+  border-radius:13px;
+  position:relative;
+  transition:background 0.2s;
+  cursor:pointer;
+  flex-shrink:0;
+}
+.ci-toggle.on { background:var(--green); }
+.ci-toggle::after {
+  content:''; position:absolute;
+  top:3px; left:3px;
+  width:20px; height:20px;
+  background:#fff; border-radius:50%;
+  transition:transform 0.2s;
+  box-shadow:0 1px 4px rgba(0,0,0,0.3);
+}
+.ci-toggle.on::after { transform:translateX(22px); }
+
+.ci-slider-wrap { padding:0 20px; margin-bottom:10px; }
+.ci-slider {
+  width:100%;
+  -webkit-appearance:none;
+  height:6px;
+  background:var(--surface3);
+  border-radius:3px;
+  outline:none;
+}
+.ci-slider::-webkit-slider-thumb {
+  -webkit-appearance:none;
+  width:22px; height:22px;
+  border-radius:50%;
+  background:var(--fire);
+  background:var(--red);
+  cursor:pointer;
+  box-shadow:0 0 10px rgba(230,57,70,0.5);
+}
+
+.ci-input {
+  background:var(--surface);
+  border:1px solid var(--border);
+  border-radius:14px;
+  padding:14px 16px;
+  color:var(--text);
+  font-family:var(--font-body);
+  font-size:16px; font-weight:600;
+  width:100%;
+  outline:none;
+  margin-bottom:10px;
+}
+.ci-input:focus { border-color:var(--red); }
+
+.ci-time-row {
+  display:grid; grid-template-columns:1fr 1fr;
+  gap:10px; margin-bottom:10px;
+}
+
+.mood-grid { display:flex; gap:8px; padding:0 20px; margin-bottom:10px; flex-wrap:wrap; }
+.mood-btn {
+  flex:1; min-width:60px;
+  padding:12px 8px;
+  background:var(--surface);
+  border:2px solid var(--border);
+  border-radius:12px;
+  text-align:center;
+  cursor:pointer;
+  transition:all 0.2s;
+  font-size:13px; font-weight:700;
+  color:var(--text3);
+}
+.mood-btn .mood-emoji { font-size:24px; display:block; margin-bottom:4px; }
+.mood-btn.selected { border-color:var(--red); color:var(--text); background:var(--red-dim); }
+
+.submit-section { padding:20px; }
+
+/* ============================
+   STREAK SCREEN
+============================ */
+#screen-streak { padding:0 0 80px; }
+.streak-header {
+  padding:20px;
+  text-align:center;
+  background:linear-gradient(180deg, #120505 0%, var(--bg) 100%);
+}
+.streak-big {
+  font-family:var(--font-display);
+  font-size:100px; line-height:1;
+  color:var(--orange);
+  animation:fireFlicker 2s infinite;
+  display:block;
+}
+.streak-big-label {
+  font-family:var(--font-mono);
+  font-size:12px; letter-spacing:4px;
+  color:var(--text3);
+}
+
+.calendar-wrap { padding:0 20px 20px; }
+.cal-grid {
+  display:grid; grid-template-columns:repeat(7, 1fr);
+  gap:6px; margin-top:12px;
+}
+.cal-day-label {
+  text-align:center;
+  font-size:11px; font-weight:700;
+  color:var(--text3); letter-spacing:1px;
+  padding:4px 0;
+}
+.cal-day {
+  aspect-ratio:1;
+  border-radius:8px;
+  display:flex; align-items:center; justify-content:center;
+  font-family:var(--font-mono);
+  font-size:12px;
+  background:var(--surface);
+  color:var(--text3);
+  border:1px solid var(--border);
+  position:relative;
+  cursor:pointer;
+}
+.cal-day.done {
+  background:rgba(6,214,160,0.15);
+  border-color:var(--green);
+  color:var(--green);
+}
+.cal-day.done::after {
+  content:'✓';
+  position:absolute; bottom:1px; right:3px;
+  font-size:8px; color:var(--green);
+}
+.cal-day.missed {
+  background:rgba(230,57,70,0.1);
+  border-color:rgba(230,57,70,0.3);
+  color:var(--red);
+}
+.cal-day.today {
+  border-color:var(--orange);
+  color:var(--orange);
+  box-shadow:0 0 8px rgba(255,107,53,0.3);
+}
+.cal-day.future { opacity:0.3; }
+
+.streak-stats-grid {
+  display:grid; grid-template-columns:1fr 1fr;
+  gap:10px; padding:0 20px 20px;
+}
+.stat-card {
+  background:var(--surface);
+  border:1px solid var(--border);
+  border-radius:14px;
+  padding:20px 16px;
+  text-align:center;
+}
+.stat-val {
+  font-family:var(--font-display);
+  font-size:42px; color:var(--text);
+}
+.stat-val.gold { color:var(--gold); }
+.stat-val.green { color:var(--green); }
+.stat-val.red { color:var(--red); }
+.stat-lbl { font-size:12px; color:var(--text3); font-weight:700; letter-spacing:2px; text-transform:uppercase; margin-top:4px; }
+
+/* ============================
+   FOCUS TIMER SCREEN
+============================ */
+#screen-focus { padding:0 0 80px; }
+.focus-header {
+  padding:24px 20px 16px;
+  display:flex; justify-content:space-between; align-items:center;
+}
+.focus-title {
+  font-family:var(--font-display);
+  font-size:36px; letter-spacing:3px;
+  color:var(--text);
+}
+
+.timer-section {
+  display:flex; justify-content:center; align-items:center;
+  padding:20px;
+  flex-direction:column;
+  gap:20px;
+}
+.timer-ring-wrap {
+  position:relative;
+  width:240px; height:240px;
+}
+.timer-ring-wrap svg { transform:rotate(-90deg); }
+.timer-ring-bg { fill:none; stroke:var(--surface3); stroke-width:10; }
+.timer-ring-fill {
+  fill:none; stroke:url(#timerGrad);
+  stroke-width:10; stroke-linecap:round;
+  stroke-dasharray:691.2;
+  stroke-dashoffset:0;
+  transition:stroke-dashoffset 1s linear;
+}
+.timer-center {
+  position:absolute; inset:0;
+  display:flex; flex-direction:column;
+  align-items:center; justify-content:center;
+}
+.timer-display {
+  font-family:var(--font-display);
+  font-size:64px; letter-spacing:2px;
+  color:var(--text);
+}
+.timer-mode-label {
+  font-family:var(--font-mono);
+  font-size:11px; color:var(--text3);
+  letter-spacing:4px; text-transform:uppercase;
+}
+.timer-session-num {
+  font-family:var(--font-mono);
+  font-size:13px; color:var(--orange);
+  letter-spacing:2px;
+}
+
+.timer-modes {
+  display:flex; gap:8px;
+  padding:0 20px;
+}
+.timer-mode-btn {
+  flex:1; padding:12px 8px;
+  background:var(--surface);
+  border:2px solid var(--border);
+  border-radius:12px;
+  color:var(--text3);
+  font-family:var(--font-body);
+  font-size:14px; font-weight:700;
+  cursor:pointer; transition:all 0.2s;
+  text-align:center;
+  letter-spacing:1px;
+}
+.timer-mode-btn.active { border-color:var(--red); color:var(--text); background:var(--red-dim); }
+
+.timer-controls {
+  display:flex; gap:12px;
+  padding:16px 20px 0;
+  align-items:center; justify-content:center;
+}
+.timer-btn {
+  width:64px; height:64px;
+  border-radius:50%;
+  border:none; cursor:pointer;
+  font-size:24px;
+  display:flex; align-items:center; justify-content:center;
+  transition:all 0.2s;
+}
+.timer-btn-main {
+  width:80px; height:80px;
+  background:var(--fire);
+  color:#fff;
+  box-shadow:0 4px 20px rgba(230,57,70,0.4);
+}
+.timer-btn-secondary {
+  background:var(--surface2);
+  border:1px solid var(--border);
+  color:var(--text2);
+}
+.timer-btn:active { transform:scale(0.93); }
+
+.session-log { padding:0 20px; }
+.session-item {
+  display:flex; align-items:center; gap:12px;
+  padding:12px 0;
+  border-bottom:1px solid var(--border);
+}
+.session-dot {
+  width:8px; height:8px; border-radius:50%;
+  background:var(--green); flex-shrink:0;
+}
+.session-info { flex:1; }
+.session-name { font-size:15px; font-weight:600; }
+.session-time { font-family:var(--font-mono); font-size:12px; color:var(--text3); }
+.session-dur {
+  font-family:var(--font-display);
+  font-size:20px; color:var(--text2);
+}
+
+/* ============================
+   ANALYTICS SCREEN
+============================ */
+#screen-analytics { padding:0 0 80px; }
+.analytics-header { padding:24px 20px 16px; }
+.analytics-title {
+  font-family:var(--font-display);
+  font-size:36px; letter-spacing:3px;
+  color:var(--text);
+}
+
+.chart-card {
+  background:var(--surface);
+  border:1px solid var(--border);
+  border-radius:16px;
+  padding:20px;
+  margin:0 20px 16px;
+}
+.chart-title {
+  font-family:var(--font-display);
+  font-size:18px; letter-spacing:2px;
+  color:var(--text2); margin-bottom:16px;
+  text-transform:uppercase;
+}
+.bar-chart {
+  display:flex; align-items:flex-end;
+  gap:8px; height:100px;
+}
+.bar-wrap { flex:1; display:flex; flex-direction:column; align-items:center; gap:6px; }
+.bar {
+  width:100%;
+  border-radius:4px 4px 0 0;
+  min-height:4px;
+  transition:height 0.8s cubic-bezier(0.4,0,0.2,1);
+  position:relative;
+}
+.bar-val {
+  font-family:var(--font-mono);
+  font-size:10px; color:var(--text3);
+  text-align:center;
+}
+.bar-day {
+  font-size:11px; font-weight:700; color:var(--text3);
+  text-align:center; font-family:var(--font-mono);
+}
+
+.summary-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:10px; padding:0 20px 16px; }
+.summary-card {
+  background:var(--surface);
+  border:1px solid var(--border);
+  border-radius:14px;
+  padding:16px 12px;
+  text-align:center;
+}
+.summary-val { font-family:var(--font-display); font-size:30px; }
+.summary-lbl { font-size:11px; color:var(--text3); font-weight:700; letter-spacing:1px; text-transform:uppercase; margin-top:4px; }
+
+/* ============================
+   DOPAMINE DETOX SCREEN
+============================ */
+#screen-detox { padding:0 0 80px; }
+.detox-header {
+  padding:24px 20px 0;
+  text-align:center;
+}
+.detox-title {
+  font-family:var(--font-display);
+  font-size:40px; letter-spacing:4px;
+  color:var(--red); text-transform:uppercase;
+}
+.detox-sub { font-size:14px; color:var(--text3); font-weight:600; margin-top:4px; letter-spacing:1px; }
+
+.relapse-counter {
+  margin:20px;
+  background:linear-gradient(135deg, #1a0a0a, #0d0d0d);
+  border:2px solid rgba(230,57,70,0.4);
+  border-radius:16px;
+  padding:24px;
+  text-align:center;
+}
+.relapse-num {
+  font-family:var(--font-display);
+  font-size:72px; color:var(--red);
+  line-height:1;
+}
+.relapse-label { font-family:var(--font-mono); font-size:11px; color:var(--text3); letter-spacing:3px; }
+.relapse-btn {
+  margin-top:16px;
+  padding:12px 24px;
+  background:rgba(230,57,70,0.15);
+  border:1px solid var(--red);
+  border-radius:10px;
+  color:var(--red);
+  font-family:var(--font-body);
+  font-size:14px; font-weight:700;
+  cursor:pointer; letter-spacing:2px;
+  text-transform:uppercase;
+  width:100%;
+  transition:all 0.2s;
+}
+.relapse-btn:active { background:rgba(230,57,70,0.3); }
+
+.app-list { padding:0 20px; }
+.detox-app-item {
+  display:flex; align-items:center; gap:14px;
+  padding:14px 0;
+  border-bottom:1px solid var(--border);
+}
+.app-emoji { font-size:28px; width:40px; text-align:center; }
+.app-info { flex:1; }
+.app-name { font-size:16px; font-weight:700; }
+.app-limit { font-size:13px; color:var(--text3); font-weight:500; }
+.app-status { font-family:var(--font-mono); font-size:12px; color:var(--green); }
+.app-status.violated { color:var(--red); }
+
+.nofap-section {
+  margin:0 20px 20px;
+  background:var(--surface);
+  border:1px solid var(--border);
+  border-radius:16px;
+  padding:20px;
+}
+.nofap-days {
+  font-family:var(--font-display);
+  font-size:64px; color:var(--gold);
+  text-align:center; animation:fireFlicker 3s infinite;
+}
+.nofap-label { font-family:var(--font-mono); font-size:11px; color:var(--text3); letter-spacing:3px; text-align:center; }
+.nofap-msg { font-size:14px; color:var(--text2); font-weight:600; text-align:center; margin-top:12px; font-style:italic; }
+.nofap-controls {
+  display:flex; gap:10px; margin-top:16px;
+}
+
+/* ============================
+   SHAME SCREEN (overlay)
+============================ */
+#screen-shame {
+  position:fixed; inset:0; z-index:9999;
+  background:rgba(0,0,0,0.97);
+  display:none; flex-direction:column;
+  align-items:center; justify-content:center;
+  text-align:center; padding:40px 24px;
+  animation:fadeIn 0.3s ease;
+}
+#screen-shame.active { display:flex; }
+.shame-icon { font-size:80px; margin-bottom:24px; animation:shake 0.5s ease; }
+.shame-title {
+  font-family:var(--font-display);
+  font-size:56px; color:var(--red);
+  line-height:1; margin-bottom:16px;
+  letter-spacing:2px;
+}
+.shame-msg {
+  font-size:18px; color:var(--text2);
+  line-height:1.6; margin-bottom:24px;
+  font-weight:500; max-width:320px;
+}
+.shame-stats {
+  background:rgba(230,57,70,0.1);
+  border:1px solid rgba(230,57,70,0.3);
+  border-radius:12px;
+  padding:20px; width:100%;
+  margin-bottom:32px;
+}
+.shame-stat { display:flex; justify-content:space-between; padding:8px 0; border-bottom:1px solid rgba(255,255,255,0.05); }
+.shame-stat:last-child { border-bottom:none; }
+.shame-stat-k { color:var(--text3); font-size:14px; font-weight:600; letter-spacing:1px; }
+.shame-stat-v { color:var(--text); font-family:var(--font-mono); font-size:14px; }
+
+/* ============================
+   SETTINGS / PROFILE SCREEN
+============================ */
+#screen-profile { padding:0 0 80px; }
+.profile-header {
+  padding:24px 20px;
+  text-align:center;
+  background:linear-gradient(180deg, #0d0d0d 0%, var(--bg) 100%);
+}
+.profile-avatar {
+  width:80px; height:80px; border-radius:50%;
+  background:var(--fire);
+  display:flex; align-items:center; justify-content:center;
+  font-size:36px; margin:0 auto 12px;
+  font-family:var(--font-display);
+  font-size:40px; color:#fff;
+}
+.profile-username {
+  font-family:var(--font-display);
+  font-size:36px; letter-spacing:2px;
+}
+.profile-rank {
+  font-family:var(--font-mono);
+  font-size:12px; color:var(--orange);
+  letter-spacing:4px;
+}
+
+.rank-progress-section { padding:0 20px 20px; }
+.rank-roadmap { display:flex; flex-direction:column; gap:8px; }
+.rank-step {
+  display:flex; align-items:center; gap:16px;
+  padding:14px 16px;
+  background:var(--surface);
+  border:1px solid var(--border);
+  border-radius:12px;
+  transition:all 0.2s;
+}
+.rank-step.current { border-color:var(--gold); background:rgba(255,214,10,0.05); }
+.rank-step.completed { border-color:var(--green); opacity:0.7; }
+.rank-step.locked { opacity:0.35; }
+.rank-step-icon { font-size:28px; width:36px; text-align:center; }
+.rank-step-name { font-family:var(--font-display); font-size:22px; letter-spacing:2px; color:var(--text); }
+.rank-step-req { font-size:12px; color:var(--text3); font-weight:600; }
+.rank-step-badge {
+  margin-left:auto;
+  font-family:var(--font-mono);
+  font-size:11px;
+  padding:4px 10px;
+  border-radius:6px;
+  letter-spacing:1px;
+}
+.rank-step.current .rank-step-badge { background:rgba(255,214,10,0.15); color:var(--gold); }
+.rank-step.completed .rank-step-badge { background:rgba(6,214,160,0.15); color:var(--green); }
+.rank-step.locked .rank-step-badge { background:var(--surface3); color:var(--text3); }
+
+.settings-list { padding:0 20px; }
+.settings-item {
+  display:flex; align-items:center; gap:14px;
+  padding:16px 0;
+  border-bottom:1px solid var(--border);
+  cursor:pointer;
+}
+.settings-icon { font-size:22px; width:32px; text-align:center; }
+.settings-label { flex:1; font-size:16px; font-weight:600; }
+.settings-arrow { color:var(--text3); font-size:18px; }
+
+/* ============================
+   MODALS
+============================ */
+.modal-overlay {
+  position:fixed; inset:0; z-index:8000;
+  background:rgba(0,0,0,0.85);
+  display:none; align-items:flex-end;
+  backdrop-filter:blur(4px);
+}
+.modal-overlay.active { display:flex; }
+.modal-sheet {
+  width:100%;
+  background:var(--surface);
+  border-radius:24px 24px 0 0;
+  padding:28px 24px 40px;
+  animation:slideUp 0.3s ease;
+  max-height:80vh;
+  overflow-y:auto;
+}
+.modal-handle {
+  width:40px; height:4px;
+  background:var(--surface3);
+  border-radius:2px;
+  margin:0 auto 20px;
+}
+.modal-title {
+  font-family:var(--font-display);
+  font-size:28px; letter-spacing:2px;
+  margin-bottom:20px; color:var(--text);
+}
+.modal-input {
+  width:100%; padding:14px 16px;
+  background:var(--bg);
+  border:1px solid var(--border);
+  border-radius:12px;
+  color:var(--text); font-size:16px;
+  font-family:var(--font-body); font-weight:600;
+  outline:none; margin-bottom:12px;
+}
+.modal-input:focus { border-color:var(--red); }
+.modal-btns { display:flex; gap:10px; margin-top:8px; }
+.modal-btn {
+  flex:1; padding:14px;
+  border-radius:12px; border:none;
+  font-family:var(--font-display);
+  font-size:18px; letter-spacing:1px;
+  cursor:pointer; transition:all 0.15s;
+}
+.modal-btn-primary { background:var(--fire); color:#fff; }
+.modal-btn-cancel { background:var(--surface3); color:var(--text2); }
+
+/* ============================
+   NOTIFICATIONS TOAST
+============================ */
+.toast {
+  position:fixed; top:20px; left:50%; transform:translateX(-50%) translateY(-80px);
+  z-index:9990;
+  background:var(--surface);
+  border:1px solid var(--border);
+  border-radius:12px;
+  padding:14px 20px;
+  max-width:340px; width:calc(100% - 40px);
+  display:flex; align-items:center; gap:12px;
+  transition:transform 0.3s cubic-bezier(0.4,0,0.2,1);
+  box-shadow:0 8px 32px rgba(0,0,0,0.5);
+}
+.toast.show { transform:translateX(-50%) translateY(0); }
+.toast-icon { font-size:20px; }
+.toast-text { font-size:14px; font-weight:600; line-height:1.4; }
+.toast-bar {
+  position:absolute; bottom:0; left:0;
+  height:2px; background:var(--fire);
+  border-radius:0 0 12px 12px;
+  width:100%;
+  animation:progressFill 3s linear forwards;
+  --w: 0%;
+}
+
+/* ============================
+   MISC UTILITIES
+============================ */
+.flex-row { display:flex; align-items:center; gap:10px; }
+.mt-12 { margin-top:12px; }
+.mt-20 { margin-top:20px; }
+.px-20 { padding:0 20px; }
+.text-center { text-align:center; }
+.separator { height:1px; background:var(--border); margin:0 20px; }
+
+.loading-dots {
+  display:inline-flex; gap:4px; align-items:center;
+}
+.loading-dot {
+  width:6px; height:6px; border-radius:50%;
+  background:var(--red);
+  animation:pulse 1.2s ease infinite;
+}
+.loading-dot:nth-child(2) { animation-delay:0.2s; }
+.loading-dot:nth-child(3) { animation-delay:0.4s; }
+
+.empty-state {
+  text-align:center; padding:40px 24px;
+  color:var(--text3);
+}
+.empty-state-icon { font-size:48px; margin-bottom:12px; }
+.empty-state-text { font-size:16px; font-weight:600; line-height:1.5; }
+
+/* Fire particles */
+.fire-particles {
+  position:absolute; inset:0; pointer-events:none; overflow:hidden;
+}
+.particle {
+  position:absolute; bottom:0;
+  width:4px; height:4px; border-radius:50%;
+  background:var(--orange);
+  animation:float var(--dur, 2s) ease-in infinite var(--delay, 0s);
+  opacity:0;
+}
+@keyframes float {
+  0%{transform:translateY(0) scale(1);opacity:0.8}
+  100%{transform:translateY(-60px) scale(0);opacity:0}
+}
+
+/* Scrollable without navbar overlap */
+.scroll-pad { height:80px; }
+</style>
+</head>
+<body>
+
+<div id="app">
+
+  <!-- ======= ONBOARDING ======= -->
+  <div id="screen-onboarding" class="screen active">
+    <!-- Slide 1: Welcome -->
+    <div class="onboard-slide active" id="ob-slide-1">
+      <div class="ob-icon">🔱</div>
+      <div class="ob-title">MONK MODE</div>
+      <div class="ob-sub">The app built for men who refuse to be average. Build discipline. Destroy weakness.</div>
+      <div class="ob-dots">
+        <div class="ob-dot active"></div>
+        <div class="ob-dot"></div>
+        <div class="ob-dot"></div>
+        <div class="ob-dot"></div>
+      </div>
+      <button class="btn btn-primary" onclick="nextObSlide()">ENTER THE MODE</button>
+    </div>
+
+    <!-- Slide 2: The Problem -->
+    <div class="onboard-slide" id="ob-slide-2">
+      <div class="ob-icon">📱</div>
+      <div class="ob-title">THE TRAP</div>
+      <div class="ob-sub">Dopamine addiction, endless scrolling, broken promises to yourself. Every day wasted is a day you can't get back.</div>
+      <div class="ob-dots">
+        <div class="ob-dot"></div>
+        <div class="ob-dot active"></div>
+        <div class="ob-dot"></div>
+        <div class="ob-dot"></div>
+      </div>
+      <button class="btn btn-primary" onclick="nextObSlide()">I'M READY TO CHANGE</button>
+    </div>
+
+    <!-- Slide 3: Goals -->
+    <div class="onboard-slide" id="ob-slide-3">
+      <div class="ob-icon">🎯</div>
+      <div class="ob-title">YOUR MISSION</div>
+      <div class="ob-sub">What are you fighting for?</div>
+      <div class="ob-goal-grid">
+        <div class="ob-goal-btn" onclick="toggleGoal(this,'discipline')">⚔️ Discipline</div>
+        <div class="ob-goal-btn" onclick="toggleGoal(this,'focus')">🧠 Deep Focus</div>
+        <div class="ob-goal-btn" onclick="toggleGoal(this,'fitness')">💪 Fitness</div>
+        <div class="ob-goal-btn" onclick="toggleGoal(this,'nofap')">🔥 NoFap</div>
+        <div class="ob-goal-btn" onclick="toggleGoal(this,'money')">💰 Wealth</div>
+        <div class="ob-goal-btn" onclick="toggleGoal(this,'sleep')">😴 Sleep</div>
+      </div>
+      <div class="ob-dots">
+        <div class="ob-dot"></div>
+        <div class="ob-dot"></div>
+        <div class="ob-dot active"></div>
+        <div class="ob-dot"></div>
+      </div>
+      <button class="btn btn-primary" onclick="nextObSlide()">THESE ARE MY TARGETS</button>
+    </div>
+
+    <!-- Slide 4: Name -->
+    <div class="onboard-slide" id="ob-slide-4">
+      <div class="ob-icon">⚡</div>
+      <div class="ob-title">IDENTIFY</div>
+      <div class="ob-sub">What do you call yourself, warrior?</div>
+      <input type="text" class="ob-name-input" id="ob-name-input" placeholder="Enter your name..." maxlength="20">
+      <div style="font-size:13px;color:var(--text3);margin-bottom:24px;font-weight:600;">Discipline starts with commitment. There's no going back.</div>
+      <div class="ob-dots">
+        <div class="ob-dot"></div>
+        <div class="ob-dot"></div>
+        <div class="ob-dot"></div>
+        <div class="ob-dot active"></div>
+      </div>
+      <button class="btn btn-primary" onclick="completeOnboarding()">BEGIN MY JOURNEY 🔱</button>
+    </div>
+  </div>
+
+  <!-- ======= HOME ======= -->
+  <div id="screen-home" class="screen" style="overflow-y:auto;">
+    <div class="home-header">
+      <div>
+        <div class="home-greeting">RISE AND GRIND</div>
+        <div class="home-name" id="home-name">WARRIOR</div>
+      </div>
+      <div class="home-date" id="home-date"></div>
+    </div>
+
+    <!-- Monk Score Ring -->
+    <div class="score-section">
+      <div class="score-ring-wrap">
+        <svg width="200" height="200" viewBox="0 0 200 200">
+          <defs>
+            <linearGradient id="scoreGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+              <stop offset="0%" style="stop-color:#e63946"/>
+              <stop offset="100%" style="stop-color:#ff6b35"/>
+            </linearGradient>
+          </defs>
+          <circle class="score-ring-bg" cx="100" cy="100" r="90"/>
+          <circle class="score-ring-fill" id="score-ring" cx="100" cy="100" r="90"/>
+        </svg>
+        <div class="score-center">
+          <div class="score-num" id="score-num">0</div>
+          <div class="score-label">MONK SCORE</div>
+          <div class="score-rank" id="score-rank-label">BROKEN</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Streak Row -->
+    <div class="streak-row">
+      <div class="streak-card">
+        <span class="streak-emoji">🔥</span>
+        <div class="streak-val fire" id="home-streak">0</div>
+        <div class="streak-lbl">Day Streak</div>
+      </div>
+      <div class="streak-card">
+        <span class="streak-emoji">⚡</span>
+        <div class="streak-val" id="home-best">0</div>
+        <div class="streak-lbl">Best Ever</div>
+      </div>
+      <div class="streak-card">
+        <span class="streak-emoji">✅</span>
+        <div class="streak-val" id="home-perfect">0</div>
+        <div class="streak-lbl">Perfect Days</div>
+      </div>
+    </div>
+
+    <!-- Rank Badge -->
+    <div class="rank-badge" onclick="navigateTo('profile')">
+      <div class="rank-icon" id="home-rank-icon">💀</div>
+      <div class="rank-info">
+        <div class="rank-name" id="home-rank-name">BROKEN</div>
+        <div class="rank-sub" id="home-rank-sub">Rise from zero. Your journey begins now.</div>
+        <div class="rank-progress">
+          <div class="rank-fill" id="home-rank-fill" style="width:5%"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Check-in CTA -->
+    <div class="checkin-cta" onclick="navigateTo('checkin')">
+      <div class="cta-icon">📋</div>
+      <div class="cta-text">
+        <div class="cta-title">DAILY CHECK-IN</div>
+        <div class="cta-sub" id="checkin-status-text">Not done today • Tap to log</div>
+      </div>
+      <div class="cta-arrow">›</div>
+    </div>
+
+    <!-- Quick Stats -->
+    <div class="section-title">TODAY'S LOG</div>
+    <div class="quick-grid">
+      <div class="quick-card" onclick="navigateTo('checkin')">
+        <div class="qc-icon">🌅</div>
+        <div class="qc-val" id="qc-wake">--:--</div>
+        <div class="qc-lbl">Wake Time</div>
+        <div class="qc-status pending" id="qcs-wake"></div>
+      </div>
+      <div class="quick-card" onclick="navigateTo('focus')">
+        <div class="qc-icon">🎯</div>
+        <div class="qc-val" id="qc-focus">0h</div>
+        <div class="qc-lbl">Focus Hours</div>
+        <div class="qc-status pending" id="qcs-focus"></div>
+      </div>
+      <div class="quick-card" onclick="navigateTo('checkin')">
+        <div class="qc-icon">💪</div>
+        <div class="qc-val" id="qc-workout">NO</div>
+        <div class="qc-lbl">Workout</div>
+        <div class="qc-status pending" id="qcs-workout"></div>
+      </div>
+      <div class="quick-card" onclick="navigateTo('checkin')">
+        <div class="qc-icon">💧</div>
+        <div class="qc-val" id="qc-water">0L</div>
+        <div class="qc-lbl">Water</div>
+        <div class="qc-status pending" id="qcs-water"></div>
+      </div>
+    </div>
+
+    <div class="scroll-pad"></div>
+  </div>
+
+  <!-- ======= CHECK-IN ======= -->
+  <div id="screen-checkin" class="screen" style="overflow-y:auto;">
+    <div class="checkin-header">
+      <div style="display:flex;align-items:center;gap:12px;margin-bottom:8px;">
+        <button onclick="navigateTo('home')" style="background:none;border:none;color:var(--text2);font-size:24px;cursor:pointer;">‹</button>
+        <div>
+          <div class="checkin-title">CHECK-IN</div>
+          <div class="checkin-sub" id="ci-date">TODAY'S LOG</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Sleep / Wake -->
+    <div class="ci-section">
+      <div class="ci-section-title">⏰ Sleep Schedule</div>
+      <div class="ci-time-row">
+        <div>
+          <label style="font-size:12px;color:var(--text3);font-weight:700;letter-spacing:1px;display:block;margin-bottom:6px;">WAKE TIME</label>
+          <input type="time" class="ci-input" id="ci-wake" style="margin-bottom:0;">
+        </div>
+        <div>
+          <label style="font-size:12px;color:var(--text3);font-weight:700;letter-spacing:1px;display:block;margin-bottom:6px;">SLEEP TIME</label>
+          <input type="time" class="ci-input" id="ci-sleep" style="margin-bottom:0;">
+        </div>
+      </div>
+    </div>
+
+    <!-- Physical -->
+    <div class="ci-section">
+      <div class="ci-section-title">💪 Physical</div>
+      <div class="ci-row">
+        <div class="ci-row-icon">🏋️</div>
+        <div class="ci-row-label">Workout</div>
+        <div class="ci-toggle" id="tog-workout" onclick="toggleTog('workout')"></div>
+      </div>
+      <div class="ci-row">
+        <div class="ci-row-icon">🚿</div>
+        <div class="ci-row-label">Cold Shower</div>
+        <div class="ci-toggle" id="tog-cold" onclick="toggleTog('cold')"></div>
+      </div>
+      <div>
+        <label style="font-size:12px;color:var(--text3);font-weight:700;letter-spacing:1px;display:flex;justify-content:space-between;padding:0 0 8px;"><span>💧 Water (Litres)</span><span id="water-val" style="color:var(--text);">2.0L</span></label>
+        <input type="range" class="ci-slider" id="ci-water" min="0" max="5" step="0.5" value="2" oninput="updateSlider('water', this.value, 'L')">
+      </div>
+    </div>
+
+    <!-- Mental -->
+    <div class="ci-section">
+      <div class="ci-section-title">🧠 Mental</div>
+      <div>
+        <label style="font-size:12px;color:var(--text3);font-weight:700;letter-spacing:1px;display:flex;justify-content:space-between;padding:0 0 8px;"><span>📚 Study/Work Hours</span><span id="study-val" style="color:var(--text);">0h</span></label>
+        <input type="range" class="ci-slider" id="ci-study" min="0" max="16" step="0.5" value="0" oninput="updateSlider('study', this.value, 'h')">
+      </div>
+      <div class="ci-row" style="margin-top:10px;">
+        <div class="ci-row-icon">🧘</div>
+        <div class="ci-row-label">Meditation</div>
+        <div class="ci-toggle" id="tog-meditate" onclick="toggleTog('meditate')"></div>
+      </div>
+      <div class="ci-row">
+        <div class="ci-row-icon">📖</div>
+        <div class="ci-row-label">Reading</div>
+        <div class="ci-toggle" id="tog-reading" onclick="toggleTog('reading')"></div>
+      </div>
+    </div>
+
+    <!-- Lifestyle -->
+    <div class="ci-section">
+      <div class="ci-section-title">⚡ Lifestyle</div>
+      <div class="ci-row">
+        <div class="ci-row-icon">🔥</div>
+        <div class="ci-row-label">NoFap — Held Streak</div>
+        <div class="ci-toggle" id="tog-nofap" onclick="toggleTog('nofap')"></div>
+      </div>
+      <div>
+        <label style="font-size:12px;color:var(--text3);font-weight:700;letter-spacing:1px;display:flex;justify-content:space-between;padding:0 0 8px;margin-top:10px;"><span>📱 Screen Time</span><span id="screen-val" style="color:var(--text);">4h</span></label>
+        <input type="range" class="ci-slider" id="ci-screen" min="0" max="16" step="0.5" value="4" oninput="updateSlider('screen', this.value, 'h')">
+      </div>
+      <div>
+        <label style="font-size:12px;color:var(--text3);font-weight:700;letter-spacing:1px;display:flex;justify-content:space-between;padding:0 0 8px;margin-top:10px;"><span>💰 Money Earned (₹)</span><span id="money-val" style="color:var(--text);">₹0</span></label>
+        <input type="range" class="ci-slider" id="ci-money" min="0" max="10000" step="100" value="0" oninput="updateSlider('money', this.value, '₹', true)">
+      </div>
+    </div>
+
+    <!-- Mood -->
+    <div class="ci-section">
+      <div class="ci-section-title">😤 Mood</div>
+      <div class="mood-grid">
+        <div class="mood-btn" onclick="selectMood('crushed')"><span class="mood-emoji">😤</span>Crushed</div>
+        <div class="mood-btn" onclick="selectMood('strong')"><span class="mood-emoji">💪</span>Strong</div>
+        <div class="mood-btn" onclick="selectMood('focused')"><span class="mood-emoji">🎯</span>Focused</div>
+        <div class="mood-btn" onclick="selectMood('tired')"><span class="mood-emoji">😪</span>Tired</div>
+        <div class="mood-btn" onclick="selectMood('meh')"><span class="mood-emoji">😑</span>Meh</div>
+      </div>
+    </div>
+
+    <!-- Notes -->
+    <div class="ci-section" style="padding-bottom:0;">
+      <div class="ci-section-title">📝 Daily Note</div>
+      <textarea class="ci-input" id="ci-note" rows="3" placeholder="What did you accomplish today?" style="resize:none;"></textarea>
+    </div>
+
+    <!-- Submit -->
+    <div class="submit-section">
+      <button class="btn btn-primary" onclick="submitCheckin()">SUBMIT CHECK-IN 🔱</button>
+    </div>
+    <div class="scroll-pad"></div>
+  </div>
+
+  <!-- ======= STREAK ======= -->
+  <div id="screen-streak" class="screen" style="overflow-y:auto;">
+    <div class="streak-header">
+      <div style="font-family:var(--font-display);font-size:14px;letter-spacing:4px;color:var(--text3);">CONSISTENCY IS KING</div>
+      <div class="streak-big" id="streak-main-num">0</div>
+      <div class="streak-big-label">DAY STREAK 🔥</div>
+    </div>
+
+    <div class="streak-stats-grid">
+      <div class="stat-card">
+        <div class="stat-val gold" id="st-best">0</div>
+        <div class="stat-lbl">Best Streak</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-val green" id="st-perfect">0</div>
+        <div class="stat-lbl">Perfect Days</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-val" id="st-total">0</div>
+        <div class="stat-lbl">Total Days</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-val red" id="st-missed">0</div>
+        <div class="stat-lbl">Days Missed</div>
+      </div>
+    </div>
+
+    <!-- Calendar -->
+    <div class="calendar-wrap">
+      <div class="section-title" style="padding:0 0 4px;">THIS MONTH</div>
+      <div class="cal-grid" id="cal-labels"></div>
+      <div class="cal-grid" id="cal-grid"></div>
+    </div>
+
+    <div class="scroll-pad"></div>
+  </div>
+
+  <!-- ======= FOCUS TIMER ======= -->
+  <div id="screen-focus" class="screen" style="overflow-y:auto;">
+    <div class="focus-header">
+      <div class="focus-title">DEEP WORK</div>
+      <div style="font-family:var(--font-mono);font-size:12px;color:var(--text3);">
+        TOTAL: <span id="focus-total-today" style="color:var(--orange);">0h 0m</span>
+      </div>
+    </div>
+
+    <!-- Timer Ring -->
+    <div class="timer-section">
+      <div class="timer-ring-wrap">
+        <svg width="240" height="240" viewBox="0 0 240 240">
+          <defs>
+            <linearGradient id="timerGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+              <stop offset="0%" style="stop-color:#e63946"/>
+              <stop offset="100%" style="stop-color:#ff6b35"/>
+            </linearGradient>
+          </defs>
+          <circle class="timer-ring-bg" cx="120" cy="120" r="110"/>
+          <circle class="timer-ring-fill" id="timer-ring" cx="120" cy="120" r="110"/>
+        </svg>
+        <div class="timer-center">
+          <div class="timer-display" id="timer-display">25:00</div>
+          <div class="timer-mode-label" id="timer-phase-label">POMODORO</div>
+          <div class="timer-session-num" id="timer-session-num">SESSION #1</div>
+        </div>
+      </div>
+
+      <!-- Mode selector -->
+      <div class="timer-modes" style="width:100%;">
+        <div class="timer-mode-btn active" onclick="setTimerMode('pomodoro',this)" data-work="1500" data-break="300">POMO</div>
+        <div class="timer-mode-btn" onclick="setTimerMode('long',this)" data-work="5400" data-break="900">DEEP</div>
+        <div class="timer-mode-btn" onclick="setTimerMode('quick',this)" data-work="900" data-break="180">SPRINT</div>
+        <div class="timer-mode-btn" onclick="setTimerMode('custom',this)">CUSTOM</div>
+      </div>
+
+      <!-- Controls -->
+      <div class="timer-controls">
+        <button class="timer-btn timer-btn-secondary" onclick="resetTimer()">↺</button>
+        <button class="timer-btn timer-btn-main" id="timer-start-btn" onclick="toggleTimer()">▶</button>
+        <button class="timer-btn timer-btn-secondary" onclick="skipTimer()">⏭</button>
+      </div>
+    </div>
+
+    <!-- Session Log -->
+    <div class="session-log">
+      <div class="section-title" style="padding:0 0 12px;">SESSION LOG</div>
+      <div id="session-log-list">
+        <div class="empty-state">
+          <div class="empty-state-icon">⏱️</div>
+          <div class="empty-state-text">No sessions yet today.<br>Start your first deep work session.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="scroll-pad"></div>
+  </div>
+
+  <!-- ======= DOPAMINE DETOX ======= -->
+  <div id="screen-detox" class="screen" style="overflow-y:auto;">
+    <div class="detox-header">
+      <div class="detox-title">DETOX</div>
+      <div class="detox-sub">KILL THE ADDICTION</div>
+    </div>
+
+    <!-- NoFap Counter -->
+    <div class="nofap-section" style="margin:16px 20px 0;">
+      <div style="font-family:var(--font-display);font-size:14px;letter-spacing:3px;color:var(--text3);text-align:center;margin-bottom:8px;">NOFAP STREAK</div>
+      <div class="nofap-days" id="nofap-days">0</div>
+      <div class="nofap-label">DAYS CLEAN</div>
+      <div class="nofap-msg" id="nofap-msg">"The first step is the hardest. Take it."</div>
+      <div class="nofap-controls">
+        <button class="btn btn-ghost btn-sm" style="flex:1;" onclick="resetNofap()">RELAPSED 💔</button>
+        <button class="btn btn-primary btn-sm" style="flex:1;" onclick="showNofapMotivation()">STAY STRONG 🔥</button>
+      </div>
+    </div>
+
+    <!-- Relapse Counter -->
+    <div class="relapse-counter" style="margin-top:16px;">
+      <div class="relapse-num" id="relapse-count">0</div>
+      <div class="relapse-label">DOPAMINE RELAPSES THIS MONTH</div>
+      <button class="relapse-btn" onclick="logRelapse()">+ LOG VIOLATION</button>
+    </div>
+
+    <!-- App Tracker -->
+    <div class="px-20">
+      <div class="section-title" style="padding:20px 0 12px;">APPS TO AVOID</div>
+      <div class="app-list" id="detox-app-list"></div>
+      <button class="btn btn-ghost" style="margin-top:12px;" onclick="openAddAppModal()">+ ADD APP TO BLACKLIST</button>
+    </div>
+
+    <div class="scroll-pad"></div>
+  </div>
+
+  <!-- ======= ANALYTICS ======= -->
+  <div id="screen-analytics" class="screen" style="overflow-y:auto;">
+    <div class="analytics-header">
+      <div class="analytics-title">ANALYTICS</div>
+      <div style="font-family:var(--font-mono);font-size:11px;color:var(--text3);letter-spacing:2px;">LAST 7 DAYS</div>
+    </div>
+
+    <!-- Summary Cards -->
+    <div class="summary-grid">
+      <div class="summary-card">
+        <div class="summary-val" id="an-avg-score" style="color:var(--orange);">0</div>
+        <div class="summary-lbl">Avg Score</div>
+      </div>
+      <div class="summary-card">
+        <div class="summary-val" id="an-focus-hrs" style="color:var(--blue);">0h</div>
+        <div class="summary-lbl">Focus Hrs</div>
+      </div>
+      <div class="summary-card">
+        <div class="summary-val" id="an-streak" style="color:var(--green);">0🔥</div>
+        <div class="summary-lbl">Streak</div>
+      </div>
+    </div>
+
+    <!-- Monk Score Chart -->
+    <div class="chart-card">
+      <div class="chart-title">MONK SCORE — 7 DAYS</div>
+      <div class="bar-chart" id="chart-score"></div>
+    </div>
+
+    <!-- Focus Hours Chart -->
+    <div class="chart-card">
+      <div class="chart-title">FOCUS HOURS — 7 DAYS</div>
+      <div class="bar-chart" id="chart-focus"></div>
+    </div>
+
+    <!-- Sleep Chart -->
+    <div class="chart-card">
+      <div class="chart-title">SLEEP HOURS — 7 DAYS</div>
+      <div class="bar-chart" id="chart-sleep"></div>
+    </div>
+
+    <!-- Habit completion -->
+    <div class="chart-card">
+      <div class="chart-title">HABIT COMPLETION %</div>
+      <div id="habit-bars" style="display:flex;flex-direction:column;gap:10px;"></div>
+    </div>
+
+    <div class="scroll-pad"></div>
+  </div>
+
+  <!-- ======= PROFILE ======= -->
+  <div id="screen-profile" class="screen" style="overflow-y:auto;">
+    <div class="profile-header">
+      <div class="profile-avatar" id="profile-avatar">M</div>
+      <div class="profile-username" id="profile-username">WARRIOR</div>
+      <div class="profile-rank" id="profile-rank-label">⚔️ RANK: BROKEN</div>
+      <div style="font-family:var(--font-mono);font-size:11px;color:var(--text3);margin-top:8px;" id="profile-days">DAY 0 OF YOUR JOURNEY</div>
+    </div>
+
+    <!-- Rank Roadmap -->
+    <div class="rank-progress-section">
+      <div class="section-title" style="padding:0 0 12px;">RANK SYSTEM</div>
+      <div class="rank-roadmap" id="rank-roadmap"></div>
+    </div>
+
+    <!-- Settings -->
+    <div class="settings-list">
+      <div class="section-title" style="padding:12px 0 12px;">SETTINGS</div>
+      <div class="settings-item" onclick="editName()">
+        <div class="settings-icon">✏️</div>
+        <div class="settings-label">Edit Name</div>
+        <div class="settings-arrow">›</div>
+      </div>
+      <div class="settings-item" onclick="resetAllData()">
+        <div class="settings-icon">🗑️</div>
+        <div class="settings-label" style="color:var(--red);">Reset All Data</div>
+        <div class="settings-arrow">›</div>
+      </div>
+      <div class="settings-item">
+        <div class="settings-icon">📱</div>
+        <div class="settings-label">App Version</div>
+        <div style="font-family:var(--font-mono);font-size:13px;color:var(--text3);">v1.0.0</div>
+      </div>
+    </div>
+
+    <div class="scroll-pad"></div>
+  </div>
+
+  <!-- ======= SHAME OVERLAY ======= -->
+  <div id="screen-shame">
+    <div class="shame-icon">💀</div>
+    <div class="shame-title">STREAK BROKEN</div>
+    <div class="shame-msg" id="shame-msg">You broke your discipline. Every champion has failed. The question is: do you rise?</div>
+    <div class="shame-stats">
+      <div class="shame-stat">
+        <div class="shame-stat-k">STREAK LOST</div>
+        <div class="shame-stat-v" id="shame-lost">0 days</div>
+      </div>
+      <div class="shame-stat">
+        <div class="shame-stat-k">PREVIOUS BEST</div>
+        <div class="shame-stat-v" id="shame-best">0 days</div>
+      </div>
+      <div class="shame-stat">
+        <div class="shame-stat-k">TODAY'S DATE</div>
+        <div class="shame-stat-v" id="shame-date"></div>
+      </div>
+    </div>
+    <button class="btn btn-danger" onclick="closeShame()">RISE AGAIN. NOW.</button>
+    <div style="margin-top:16px;font-size:13px;color:var(--text3);font-weight:600;letter-spacing:1px;">
+      "The secret of discipline is motivation. Find your WHY."
+    </div>
+  </div>
+
+  <!-- ======= BOTTOM NAV ======= -->
+  <nav id="bottom-nav">
+    <button class="nav-item active" onclick="navigateTo('home')" id="nav-home">
+      <span class="nav-icon">🏠</span>
+      <span>HOME</span>
+    </button>
+    <button class="nav-item" onclick="navigateTo('checkin')" id="nav-checkin">
+      <span class="nav-icon">📋</span>
+      <span>LOG</span>
+    </button>
+    <button class="nav-item" onclick="navigateTo('streak')" id="nav-streak">
+      <span class="nav-icon">🔥</span>
+      <span>STREAK</span>
+    </button>
+    <button class="nav-item" onclick="navigateTo('focus')" id="nav-focus">
+      <span class="nav-icon">⏱️</span>
+      <span>FOCUS</span>
+    </button>
+    <button class="nav-item" onclick="navigateTo('analytics')" id="nav-analytics">
+      <span class="nav-icon">📊</span>
+      <span>STATS</span>
+    </button>
+  </nav>
+
+  <!-- Add App Modal -->
+  <div class="modal-overlay" id="modal-add-app">
+    <div class="modal-sheet">
+      <div class="modal-handle"></div>
+      <div class="modal-title">BLACKLIST APP</div>
+      <input type="text" class="modal-input" id="modal-app-name" placeholder="App name (e.g. Instagram)">
+      <input type="text" class="modal-input" id="modal-app-emoji" placeholder="Emoji (e.g. 📸)" maxlength="4">
+      <div class="modal-btns">
+        <button class="modal-btn modal-btn-cancel" onclick="closeModal('modal-add-app')">CANCEL</button>
+        <button class="modal-btn modal-btn-primary" onclick="addApp()">ADD</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast -->
+  <div class="toast" id="toast">
+    <div class="toast-icon" id="toast-icon">🔥</div>
+    <div class="toast-text" id="toast-text">Notification</div>
+    <div class="toast-bar"></div>
+  </div>
+
+</div>
+
+<script>
+// ============================================================
+//  MONK MODE — APP ENGINE
+// ============================================================
+
+// ---- STATE ----
+let state = {
+  user: { name: '', goals: [], joinDate: '' },
+  stats: {
+    currentStreak: 0,
+    bestStreak: 0,
+    perfectDays: 0,
+    totalCheckins: 0,
+    missedDays: 0,
+    lastCheckinDate: '',
+    nofapStreak: 0,
+    nofapStartDate: '',
+    relapses: 0,
+    totalFocusSeconds: 0,
+  },
+  todayLog: null,
+  history: [],  // array of daily logs
+  detoxApps: [
+    { name:'Instagram', emoji:'📸', violations:0 },
+    { name:'YouTube', emoji:'▶️', violations:0 },
+    { name:'Twitter/X', emoji:'𝕏', violations:0 },
+  ],
+  focus: {
+    sessions: [],
+    todaySeconds: 0,
+    todayDate: '',
+  },
+};
+
+const RANKS = [
+  { name:'BROKEN',      icon:'💀', req:0,   msg:'Rise from zero. Your journey begins now.' },
+  { name:'AVERAGE',     icon:'😑', req:7,   msg:'You started. Most never do. Keep going.' },
+  { name:'DISCIPLINED', icon:'⚔️', req:21,  msg:'3 weeks of consistency. Real progress.' },
+  { name:'WARRIOR',     icon:'🗡️', req:45,  msg:'You are forging yourself in fire.' },
+  { name:'ELITE',       icon:'🦅', req:90,  msg:'Top 5%. You operate differently now.' },
+  { name:'MONK',        icon:'🧿', req:180, msg:'Half a year of discipline. Rare breed.' },
+  { name:'ASCENDED',    icon:'🔱', req:365, msg:'One full year. You are the standard.' },
+];
+
+const NOFAP_MESSAGES = [
+  "Retain your energy. Channel it to greatness.",
+  "Every urge resisted = discipline earned.",
+  "Your ancestors had no such weakness.",
+  "This battle is won in your mind first.",
+  "Sexual transmutation is your superpower.",
+  "The urge passes in 10 minutes. Wait it out.",
+  "Focus this energy on building your empire.",
+  "Real kings control themselves before they control anything else.",
+];
+
+const NOTIFICATIONS = [
+  "Your future self is watching.",
+  "Discipline beats motivation. Always.",
+  "2 hours wasted already. Get back on track.",
+  "Do not break the streak.",
+  "While you scroll, someone is building their empire.",
+  "The pain of discipline is nothing compared to the pain of regret.",
+  "You said you wanted this. Prove it.",
+  "Your streak is your most valuable asset.",
+];
+
+let timerInterval = null;
+let timerRunning = false;
+let timerSeconds = 1500;
+let timerTotal = 1500;
+let timerBreakSeconds = 300;
+let timerIsBreak = false;
+let timerSessionCount = 0;
+let timerStartTime = null;
+
+// ---- STORAGE ----
+function saveState() {
+  try { localStorage.setItem('monkmode_v1', JSON.stringify(state)); } catch(e){}
+}
+function loadState() {
+  try {
+    const s = localStorage.getItem('monkmode_v1');
+    if (s) state = { ...state, ...JSON.parse(s) };
+  } catch(e){}
+}
+
+// ---- INIT ----
+function init() {
+  loadState();
+  const today = getTodayStr();
+
+  // Reset today focus if new day
+  if (state.focus.todayDate !== today) {
+    state.focus.todaySeconds = 0;
+    state.focus.todayDate = today;
+    state.focus.sessions = state.focus.sessions || [];
+    // Filter to keep last 10
+    if (state.focus.sessions.length > 30) {
+      state.focus.sessions = state.focus.sessions.slice(-10);
+    }
+    saveState();
+  }
+
+  if (!state.user.name) {
+    showScreen('onboarding');
+    document.getElementById('bottom-nav').classList.remove('visible');
+  } else {
+    showScreen('home');
+    document.getElementById('bottom-nav').classList.add('visible');
+    checkStreakBreak();
+    updateAllUI();
+    maybeShowMotivation();
+  }
+}
+
+// ---- ONBOARDING ----
+let obSlide = 1;
+let selectedGoals = [];
+
+function nextObSlide() {
+  const slides = document.querySelectorAll('.onboard-slide');
+  slides[obSlide - 1].classList.remove('active');
+  obSlide++;
+  if (obSlide > 4) obSlide = 4;
+  slides[obSlide - 1].classList.add('active');
+}
+
+function toggleGoal(el, goal) {
+  el.classList.toggle('selected');
+  if (selectedGoals.includes(goal)) {
+    selectedGoals = selectedGoals.filter(g => g !== goal);
+  } else {
+    selectedGoals.push(goal);
+  }
+}
+
+function completeOnboarding() {
+  const name = document.getElementById('ob-name-input').value.trim();
+  if (!name) {
+    document.getElementById('ob-name-input').style.borderColor = 'var(--red)';
+    showToast('💀', 'Warriors have names. Enter yours.');
+    return;
+  }
+  state.user.name = name.toUpperCase();
+  state.user.goals = selectedGoals;
+  state.user.joinDate = getTodayStr();
+  state.stats.nofapStartDate = getTodayStr();
+  saveState();
+  showScreen('home');
+  document.getElementById('bottom-nav').classList.add('visible');
+  updateAllUI();
+  showToast('🔱', `Welcome, ${state.user.name}. The journey begins.`);
+}
+
+// ---- NAVIGATION ----
+function showScreen(name) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById('screen-' + name)?.classList.add('active');
+}
+
+function navigateTo(name) {
+  showScreen(name);
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  const navEl = document.getElementById('nav-' + name);
+  if (navEl) navEl.classList.add('active');
+
+  // Screen-specific updates
+  if (name === 'home') updateHomeUI();
+  if (name === 'streak') updateStreakUI();
+  if (name === 'analytics') updateAnalyticsUI();
+  if (name === 'detox') updateDetoxUI();
+  if (name === 'profile') updateProfileUI();
+  if (name === 'focus') updateFocusUI();
+  if (name === 'checkin') initCheckin();
+}
+
+// ---- TODAY ----
+function getTodayStr() {
+  const d = new Date();
+  return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+}
+function getDateStr(d) {
+  const dt = typeof d === 'string' ? new Date(d) : d;
+  return dt.toLocaleDateString('en-IN', { weekday:'short', day:'numeric', month:'short' });
+}
+function getDayOfWeek(d) {
+  const days = ['SUN','MON','TUE','WED','THU','FRI','SAT'];
+  return days[new Date(d).getDay()];
+}
+
+// ---- MONK SCORE ----
+function calcScore(log) {
+  if (!log) return 0;
+  let score = 40; // Base
+
+  // Positive habits
+  if (log.workout) score += 10;
+  if (log.cold) score += 5;
+  if (log.meditate) score += 7;
+  if (log.reading) score += 5;
+  if (log.nofap) score += 8;
+  if (log.water >= 2.5) score += 5;
+  if (log.study >= 4) score += 8;
+  else if (log.study >= 2) score += 4;
+  if (log.wake && log.wake <= '06:30') score += 5;
+  if (log.money > 0) score += 3;
+
+  // Negative
+  if (log.screen >= 8) score -= 15;
+  else if (log.screen >= 5) score -= 8;
+  else if (log.screen >= 3) score -= 3;
+
+  return Math.min(100, Math.max(0, score));
+}
+
+function getRank(streak) {
+  let rank = RANKS[0];
+  for (let r of RANKS) {
+    if (streak >= r.req) rank = r;
+  }
+  return rank;
+}
+
+// ---- CHECK-IN ----
+function initCheckin() {
+  const now = new Date();
+  const timeStr = `${String(now.getHours()).padStart(2,'0')}:${String(now.getMinutes()).padStart(2,'0')}`;
+  document.getElementById('ci-date').textContent = getDateStr(now).toUpperCase();
+
+  const today = getTodayStr();
+  const log = state.todayLog;
+
+  // Pre-fill with today's log or defaults
+  document.getElementById('ci-wake').value = log?.wake || '06:00';
+  document.getElementById('ci-sleep').value = log?.sleep || '22:30';
+  document.getElementById('ci-water').value = log?.water ?? 2;
+  document.getElementById('ci-study').value = log?.study ?? 0;
+  document.getElementById('ci-screen').value = log?.screen ?? 4;
+  document.getElementById('ci-money').value = log?.money ?? 0;
+  document.getElementById('ci-note').value = log?.note || '';
+
+  updateSlider('water', document.getElementById('ci-water').value, 'L');
+  updateSlider('study', document.getElementById('ci-study').value, 'h');
+  updateSlider('screen', document.getElementById('ci-screen').value, 'h');
+  updateSlider('money', document.getElementById('ci-money').value, '₹', true);
+
+  // Toggles
+  const bools = ['workout','cold','meditate','reading','nofap'];
+  bools.forEach(k => {
+    const tog = document.getElementById('tog-' + k);
+    if (tog) {
+      tog.className = 'ci-toggle' + (log?.[k] ? ' on' : '');
+    }
+  });
+
+  // Mood
+  document.querySelectorAll('.mood-btn').forEach(b => b.classList.remove('selected'));
+  if (log?.mood) {
+    document.querySelectorAll('.mood-btn').forEach(b => {
+      if (b.getAttribute('onclick').includes(log.mood)) b.classList.add('selected');
+    });
+  }
+}
+
+function updateSlider(key, val, unit, prefix = false) {
+  const map = {
+    water: 'water-val',
+    study: 'study-val',
+    screen: 'screen-val',
+    money: 'money-val',
+  };
+  const el = document.getElementById(map[key]);
+  if (!el) return;
+  if (prefix) {
+    el.textContent = unit + val;
+  } else {
+    el.textContent = val + unit;
+  }
+}
+
+function toggleTog(key) {
+  const el = document.getElementById('tog-' + key);
+  if (!el) return;
+  el.classList.toggle('on');
+}
+
+function selectMood(mood) {
+  document.querySelectorAll('.mood-btn').forEach(b => b.classList.remove('selected'));
+  const btn = document.querySelector(`.mood-btn[onclick="selectMood('${mood}')"]`);
+  if (btn) btn.classList.add('selected');
+}
+
+function submitCheckin() {
+  const today = getTodayStr();
+  const log = {
+    date: today,
+    wake: document.getElementById('ci-wake').value,
+    sleep: document.getElementById('ci-sleep').value,
+    water: parseFloat(document.getElementById('ci-water').value),
+    study: parseFloat(document.getElementById('ci-study').value),
+    screen: parseFloat(document.getElementById('ci-screen').value),
+    money: parseFloat(document.getElementById('ci-money').value),
+    workout: document.getElementById('tog-workout').classList.contains('on'),
+    cold: document.getElementById('tog-cold').classList.contains('on'),
+    meditate: document.getElementById('tog-meditate').classList.contains('on'),
+    reading: document.getElementById('tog-reading').classList.contains('on'),
+    nofap: document.getElementById('tog-nofap').classList.contains('on'),
+    note: document.getElementById('ci-note').value.trim(),
+    mood: document.querySelector('.mood-btn.selected')?.getAttribute('onclick')?.match(/'(\w+)'/)?.[1] || 'focused',
+    score: 0,
+    timestamp: Date.now(),
+  };
+  log.score = calcScore(log);
+
+  // Update streak
+  const last = state.stats.lastCheckinDate;
+  const yesterday = getYesterdayStr();
+
+  if (last === today) {
+    // Already checked in today — update
+    state.history = state.history.filter(h => h.date !== today);
+  } else if (last === yesterday || !last) {
+    state.stats.currentStreak++;
+    if (state.stats.currentStreak > state.stats.bestStreak) {
+      state.stats.bestStreak = state.stats.currentStreak;
+    }
+  } else if (last && last < yesterday) {
+    // Missed days — show shame
+    const lostStreak = state.stats.currentStreak;
+    if (lostStreak > 0) {
+      showShame(lostStreak);
+    }
+    state.stats.currentStreak = 1;
+  } else {
+    state.stats.currentStreak = 1;
+  }
+
+  state.stats.lastCheckinDate = today;
+  state.stats.totalCheckins++;
+  if (log.score >= 80) state.stats.perfectDays++;
+
+  // Update nofap
+  if (!log.nofap) {
+    // Nofap streak broken today
+    state.stats.nofapStreak = 0;
+    state.stats.nofapStartDate = today;
+  } else {
+    const nStart = state.stats.nofapStartDate || today;
+    const ms = new Date(today) - new Date(nStart);
+    state.stats.nofapStreak = Math.floor(ms / 86400000) + 1;
+  }
+
+  state.todayLog = log;
+  state.history.push(log);
+  if (state.history.length > 365) state.history = state.history.slice(-365);
+
+  saveState();
+  updateAllUI();
+  showToast('🔱', `Score: ${log.score}/100. Streak: ${state.stats.currentStreak} days!`);
+  setTimeout(() => navigateTo('home'), 1200);
+}
+
+function getYesterdayStr() {
+  const d = new Date();
+  d.setDate(d.getDate() - 1);
+  return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+}
+
+function checkStreakBreak() {
+  const last = state.stats.lastCheckinDate;
+  if (!last) return;
+  const yesterday = getYesterdayStr();
+  const today = getTodayStr();
+  if (last < yesterday && last !== today && state.stats.currentStreak > 0) {
+    const days = Math.floor((new Date(today) - new Date(last)) / 86400000);
+    state.stats.missedDays += days - 1;
+    const lost = state.stats.currentStreak;
+    state.stats.currentStreak = 0;
+    saveState();
+    if (lost > 1) {
+      setTimeout(() => showShame(lost), 1000);
+    }
+  }
+}
+
+// ---- SHAME SCREEN ----
+function showShame(lostStreak) {
+  document.getElementById('shame-lost').textContent = lostStreak + ' days';
+  document.getElementById('shame-best').textContent = state.stats.bestStreak + ' days';
+  document.getElementById('shame-date').textContent = getDateStr(new Date());
+  document.getElementById('screen-shame').classList.add('active');
+}
+function closeShame() {
+  document.getElementById('screen-shame').classList.remove('active');
+}
+
+// ---- UI UPDATES ----
+function updateAllUI() {
+  updateHomeUI();
+  updateFocusUI();
+  updateNofapUI();
+}
+
+function updateHomeUI() {
+  document.getElementById('home-name').textContent = state.user.name || 'WARRIOR';
+  const now = new Date();
+  document.getElementById('home-date').innerHTML =
+    getDayOfWeek(now) + '<br>' + now.toLocaleDateString('en-IN', {day:'numeric',month:'short',year:'numeric'});
+
+  const score = calcScore(state.todayLog) || 0;
+  animateNumber('score-num', score);
+
+  const rank = getRank(state.stats.currentStreak);
+  document.getElementById('score-rank-label').textContent = rank.name;
+  document.getElementById('home-rank-icon').textContent = rank.icon;
+  document.getElementById('home-rank-name').textContent = rank.name;
+  document.getElementById('home-rank-sub').textContent = rank.msg;
+
+  // Rank progress
+  const ri = RANKS.indexOf(rank);
+  const nextRank = RANKS[ri + 1];
+  if (nextRank) {
+    const progress = ((state.stats.currentStreak - rank.req) / (nextRank.req - rank.req)) * 100;
+    document.getElementById('home-rank-fill').style.width = Math.min(100, Math.max(0, progress)) + '%';
+  } else {
+    document.getElementById('home-rank-fill').style.width = '100%';
+  }
+
+  // Score ring
+  const circumference = 2 * Math.PI * 90;
+  const offset = circumference - (score / 100) * circumference;
+  document.getElementById('score-ring').style.strokeDashoffset = offset;
+
+  // Streaks
+  document.getElementById('home-streak').textContent = state.stats.currentStreak;
+  document.getElementById('home-best').textContent = state.stats.bestStreak;
+  document.getElementById('home-perfect').textContent = state.stats.perfectDays;
+
+  // Quick cards
+  const log = state.todayLog;
+  const today = getTodayStr();
+  const checkedIn = log?.date === today;
+
+  document.getElementById('checkin-status-text').textContent =
+    checkedIn ? `Done ✓ • Score: ${log.score}/100` : 'Not done today • Tap to log';
+
+  if (log && checkedIn) {
+    document.getElementById('qc-wake').textContent = log.wake || '--:--';
+    document.getElementById('qcs-wake').className = 'qc-status done';
+    document.getElementById('qc-focus').textContent = formatFocusTime(state.focus.todaySeconds);
+    document.getElementById('qcs-focus').className = state.focus.todaySeconds > 0 ? 'qc-status done' : 'qc-status pending';
+    document.getElementById('qc-workout').textContent = log.workout ? 'YES ✓' : 'NO';
+    document.getElementById('qcs-workout').className = log.workout ? 'qc-status done' : 'qc-status pending';
+    document.getElementById('qc-water').textContent = log.water + 'L';
+    document.getElementById('qcs-water').className = log.water >= 2.5 ? 'qc-status done' : 'qc-status pending';
+  } else {
+    document.getElementById('qc-wake').textContent = '--:--';
+    document.getElementById('qc-focus').textContent = formatFocusTime(state.focus.todaySeconds);
+  }
+}
+
+function updateStreakUI() {
+  document.getElementById('streak-main-num').textContent = state.stats.currentStreak;
+  document.getElementById('st-best').textContent = state.stats.bestStreak;
+  document.getElementById('st-perfect').textContent = state.stats.perfectDays;
+  document.getElementById('st-total').textContent = state.stats.totalCheckins;
+  document.getElementById('st-missed').textContent = state.stats.missedDays;
+  renderCalendar();
+}
+
+function renderCalendar() {
+  const now = new Date();
+  const year = now.getFullYear();
+  const month = now.getMonth();
+  const firstDay = new Date(year, month, 1).getDay();
+  const daysInMonth = new Date(year, month + 1, 0).getDate();
+  const today = getTodayStr();
+
+  // Labels
+  const labelsEl = document.getElementById('cal-labels');
+  labelsEl.innerHTML = ['SUN','MON','TUE','WED','THU','FRI','SAT']
+    .map(d => `<div class="cal-day-label">${d}</div>`).join('');
+
+  // Days
+  const gridEl = document.getElementById('cal-grid');
+  let html = '';
+
+  for (let i = 0; i < firstDay; i++) html += '<div></div>';
+
+  const doneSet = new Set(state.history.map(h => h.date));
+
+  for (let d = 1; d <= daysInMonth; d++) {
+    const dateStr = `${year}-${String(month+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
+    const isToday = dateStr === today;
+    const isFuture = dateStr > today;
+    const isDone = doneSet.has(dateStr);
+    const isMissed = !isFuture && !isDone && dateStr < today;
+
+    let cls = 'cal-day';
+    if (isToday) cls += ' today';
+    else if (isDone) cls += ' done';
+    else if (isMissed) cls += ' missed';
+    else if (isFuture) cls += ' future';
+
+    html += `<div class="${cls}">${d}</div>`;
+  }
+  gridEl.innerHTML = html;
+}
+
+function updateDetoxUI() {
+  updateNofapUI();
+  renderDetoxApps();
+  document.getElementById('relapse-count').textContent = state.stats.relapses || 0;
+}
+
+function updateNofapUI() {
+  const days = state.stats.nofapStreak || 0;
+  const el = document.getElementById('nofap-days');
+  if (el) el.textContent = days;
+  const msgEl = document.getElementById('nofap-msg');
+  if (msgEl) msgEl.textContent = `"${NOFAP_MESSAGES[days % NOFAP_MESSAGES.length]}"`;
+}
+
+function renderDetoxApps() {
+  const list = document.getElementById('detox-app-list');
+  if (!list) return;
+  if (!state.detoxApps.length) {
+    list.innerHTML = `<div class="empty-state"><div class="empty-state-icon">📱</div><div class="empty-state-text">No apps blacklisted yet.<br>Add the ones stealing your time.</div></div>`;
+    return;
+  }
+  list.innerHTML = state.detoxApps.map((app, i) => `
+    <div class="detox-app-item">
+      <div class="app-emoji">${app.emoji || '📱'}</div>
+      <div class="app-info">
+        <div class="app-name">${app.name}</div>
+        <div class="app-limit">BLACKLISTED • ${app.violations} violation${app.violations !== 1 ? 's' : ''}</div>
+      </div>
+      <div class="app-status ${app.violations > 0 ? 'violated' : ''}">
+        ${app.violations > 0 ? '⚠️ VIOLATED' : '✓ CLEAN'}
+      </div>
+    </div>
+  `).join('');
+}
+
+function updateAnalyticsUI() {
+  // Get last 7 days
+  const days7 = [];
+  for (let i = 6; i >= 0; i--) {
+    const d = new Date();
+    d.setDate(d.getDate() - i);
+    const str = `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+    const log = state.history.find(h => h.date === str);
+    days7.push({ date: str, day: getDayOfWeek(str), log });
+  }
+
+  const scores = days7.map(d => d.log?.score || 0);
+  const focuses = days7.map(d => {
+    // Approximate from history or focus log
+    return d.log?.study || 0;
+  });
+  const sleeps = days7.map(d => {
+    if (!d.log?.wake || !d.log?.sleep) return 0;
+    const wakeH = parseInt(d.log.wake.split(':')[0]) + parseInt(d.log.wake.split(':')[1])/60;
+    const sleepH = parseInt(d.log.sleep.split(':')[0]) + parseInt(d.log.sleep.split(':')[1])/60;
+    let diff = wakeH - sleepH;
+    if (diff < 0) diff += 24;
+    // If they slept last night: sleep time is PM, wake time is AM
+    // Approximate: wakeH + (24 - sleepH) if sleepH > 12
+    if (sleepH > 12) return Math.round((wakeH + (24 - sleepH)) * 10) / 10;
+    return Math.round(diff * 10) / 10;
+  });
+
+  const labels = days7.map(d => d.day.slice(0,3));
+
+  renderBarChart('chart-score', scores, labels, '#ff6b35', 100);
+  renderBarChart('chart-focus', focuses, labels, '#4361ee', 12);
+  renderBarChart('chart-sleep', sleeps, labels, '#06d6a0', 10);
+
+  // Summary
+  const avgScore = scores.filter(s => s > 0).length
+    ? Math.round(scores.filter(s => s > 0).reduce((a,b) => a+b, 0) / scores.filter(s => s > 0).length)
+    : 0;
+  document.getElementById('an-avg-score').textContent = avgScore;
+  const focusHrs = Math.floor(state.focus.todaySeconds / 3600);
+  document.getElementById('an-focus-hrs').textContent = focusHrs + 'h';
+  document.getElementById('an-streak').textContent = state.stats.currentStreak + '🔥';
+
+  // Habit completion bars
+  const logs = state.history.slice(-7).filter(l => l);
+  const habits = [
+    { key:'workout', label:'Workout 🏋️' },
+    { key:'cold', label:'Cold Shower 🚿' },
+    { key:'meditate', label:'Meditation 🧘' },
+    { key:'reading', label:'Reading 📖' },
+    { key:'nofap', label:'NoFap 🔥' },
+  ];
+  const habitBarsEl = document.getElementById('habit-bars');
+  if (habitBarsEl && logs.length > 0) {
+    habitBarsEl.innerHTML = habits.map(h => {
+      const pct = Math.round((logs.filter(l => l[h.key]).length / logs.length) * 100);
+      return `
+        <div>
+          <div style="display:flex;justify-content:space-between;margin-bottom:4px;">
+            <span style="font-size:13px;font-weight:600;color:var(--text2);">${h.label}</span>
+            <span style="font-family:var(--font-mono);font-size:13px;color:var(--text);">${pct}%</span>
+          </div>
+          <div style="height:6px;background:var(--surface3);border-radius:3px;">
+            <div style="height:100%;width:${pct}%;background:var(--fire);border-radius:3px;transition:width 0.8s ease;"></div>
+          </div>
+        </div>
+      `;
+    }).join('');
+  } else if (habitBarsEl) {
+    habitBarsEl.innerHTML = `<div style="color:var(--text3);font-size:14px;text-align:center;padding:12px;">Complete daily check-ins to see habit stats.</div>`;
+  }
+}
+
+function renderBarChart(containerId, values, labels, color, maxVal) {
+  const container = document.getElementById(containerId);
+  if (!container) return;
+  const maxV = Math.max(...values, 1);
+  const displayMax = maxVal || maxV;
+
+  container.innerHTML = values.map((v, i) => {
+    const heightPct = Math.round((v / displayMax) * 100);
+    return `
+      <div class="bar-wrap">
+        <div class="bar-val">${v > 0 ? v : ''}</div>
+        <div class="bar" style="height:${Math.max(heightPct, v > 0 ? 4 : 0)}%;background:${v > 0 ? color : 'var(--surface3)'};width:100%;min-height:${v > 0 ? '4px' : '4px'};"></div>
+        <div class="bar-day">${labels[i] || ''}</div>
+      </div>
+    `;
+  }).join('');
+}
+
+function updateProfileUI() {
+  const name = state.user.name || 'WARRIOR';
+  document.getElementById('profile-username').textContent = name;
+  document.getElementById('profile-avatar').textContent = name[0] || 'M';
+
+  const rank = getRank(state.stats.currentStreak);
+  document.getElementById('profile-rank-label').textContent = `${rank.icon} RANK: ${rank.name}`;
+
+  const joinDate = state.user.joinDate;
+  if (joinDate) {
+    const days = Math.floor((new Date() - new Date(joinDate)) / 86400000);
+    document.getElementById('profile-days').textContent = `DAY ${days} OF YOUR JOURNEY`;
+  }
+
+  // Rank roadmap
+  const roadmapEl = document.getElementById('rank-roadmap');
+  const currentRankIndex = RANKS.indexOf(rank);
+  roadmapEl.innerHTML = RANKS.map((r, i) => {
+    let cls = 'rank-step locked';
+    let badge = 'LOCKED';
+    if (i < currentRankIndex) { cls = 'rank-step completed'; badge = 'DONE ✓'; }
+    if (i === currentRankIndex) { cls = 'rank-step current'; badge = 'CURRENT'; }
+    const nextRank = RANKS[i + 1];
+    const reqText = nextRank
+      ? `${r.req} day streak • ${r.req} days to unlock next`
+      : `${r.req} day streak • MAX RANK`;
+    return `
+      <div class="${cls}">
+        <div class="rank-step-icon">${r.icon}</div>
+        <div>
+          <div class="rank-step-name">${r.name}</div>
+          <div class="rank-step-req">${r.req} day streak</div>
+        </div>
+        <div class="rank-step-badge">${badge}</div>
+      </div>
+    `;
+  }).join('');
+}
+
+function updateFocusUI() {
+  const total = state.focus.todaySeconds || 0;
+  document.getElementById('focus-total-today').textContent = formatFocusTime(total);
+  renderSessionLog();
+}
+
+// ---- FOCUS TIMER ----
+function setTimerMode(mode, el) {
+  if (timerRunning) return;
+  document.querySelectorAll('.timer-mode-btn').forEach(b => b.classList.remove('active'));
+  el.classList.add('active');
+
+  if (mode === 'custom') {
+    const mins = prompt('Enter work duration (minutes):');
+    if (mins && !isNaN(mins)) {
+      timerTotal = parseInt(mins) * 60;
+      timerBreakSeconds = Math.max(60, parseInt(mins) * 60 / 5);
+    }
+  } else {
+    timerTotal = parseInt(el.dataset.work);
+    timerBreakSeconds = parseInt(el.dataset.break);
+  }
+  timerSeconds = timerTotal;
+  timerIsBreak = false;
+  updateTimerDisplay();
+  resetTimerRing();
+}
+
+function toggleTimer() {
+  if (timerRunning) {
+    pauseTimer();
+  } else {
+    startTimer();
+  }
+}
+
+function startTimer() {
+  timerRunning = true;
+  timerStartTime = Date.now() - ((timerTotal - timerSeconds) * 1000);
+  document.getElementById('timer-start-btn').textContent = '⏸';
+  timerInterval = setInterval(tickTimer, 1000);
+}
+
+function pauseTimer() {
+  timerRunning = false;
+  clearInterval(timerInterval);
+  document.getElementById('timer-start-btn').textContent = '▶';
+}
+
+function resetTimer() {
+  pauseTimer();
+  timerSeconds = timerTotal;
+  timerIsBreak = false;
+  updateTimerDisplay();
+  resetTimerRing();
+}
+
+function skipTimer() {
+  if (timerIsBreak) {
+    timerIsBreak = false;
+    timerSeconds = timerTotal;
+    document.getElementById('timer-phase-label').textContent = 'FOCUS';
+  } else {
+    completeSession();
+  }
+}
+
+function tickTimer() {
+  timerSeconds--;
+  updateTimerDisplay();
+  updateTimerRing();
+  if (timerSeconds <= 0) {
+    if (!timerIsBreak) {
+      completeSession();
+    } else {
+      // Break done
+      timerIsBreak = false;
+      timerSeconds = timerTotal;
+      document.getElementById('timer-phase-label').textContent = 'FOCUS';
+      showToast('🎯', 'Break over. Lock back in!');
+    }
+  }
+}
+
+function completeSession() {
+  const duration = timerTotal;
+  timerSessionCount++;
+
+  // Log session
+  const session = {
+    date: getTodayStr(),
+    duration: duration,
+    time: new Date().toLocaleTimeString('en-IN', {hour:'2-digit', minute:'2-digit'}),
+    num: timerSessionCount,
+  };
+  state.focus.sessions = state.focus.sessions || [];
+  state.focus.sessions.push(session);
+  state.focus.todaySeconds = (state.focus.todaySeconds || 0) + duration;
+  state.focus.todayDate = getTodayStr();
+  saveState();
+
+  showToast('✅', `Session ${timerSessionCount} complete! +${Math.floor(duration/60)} min`);
+
+  // Start break
+  timerIsBreak = true;
+  timerSeconds = timerBreakSeconds;
+  document.getElementById('timer-phase-label').textContent = 'BREAK';
+  document.getElementById('timer-session-num').textContent = `SESSION #${timerSessionCount + 1}`;
+  updateTimerDisplay();
+  updateFocusUI();
+}
+
+function updateTimerDisplay() {
+  const mins = Math.floor(timerSeconds / 60);
+  const secs = timerSeconds % 60;
+  document.getElementById('timer-display').textContent =
+    `${String(mins).padStart(2,'0')}:${String(secs).padStart(2,'0')}`;
+}
+
+function updateTimerRing() {
+  const total = timerIsBreak ? timerBreakSeconds : timerTotal;
+  const circumference = 2 * Math.PI * 110;
+  const progress = timerSeconds / total;
+  const offset = circumference * (1 - progress);
+  document.getElementById('timer-ring').style.strokeDashoffset = circumference - (progress * circumference);
+}
+
+function resetTimerRing() {
+  const circumference = 2 * Math.PI * 110;
+  document.getElementById('timer-ring').style.strokeDashoffset = 0;
+}
+
+function formatFocusTime(seconds) {
+  const h = Math.floor(seconds / 3600);
+  const m = Math.floor((seconds % 3600) / 60);
+  if (h > 0) return `${h}h ${m}m`;
+  return `${m}m`;
+}
+
+function renderSessionLog() {
+  const el = document.getElementById('session-log-list');
+  if (!el) return;
+  const today = getTodayStr();
+  const todaySessions = (state.focus.sessions || []).filter(s => s.date === today).reverse();
+  if (!todaySessions.length) {
+    el.innerHTML = `<div class="empty-state"><div class="empty-state-icon">⏱️</div><div class="empty-state-text">No sessions yet today.<br>Start your first deep work session.</div></div>`;
+    return;
+  }
+  el.innerHTML = todaySessions.map(s => `
+    <div class="session-item">
+      <div class="session-dot"></div>
+      <div class="session-info">
+        <div class="session-name">Session #${s.num}</div>
+        <div class="session-time">${s.time}</div>
+      </div>
+      <div class="session-dur">${Math.floor(s.duration / 60)}m</div>
+    </div>
+  `).join('');
+}
+
+// ---- DETOX ----
+function logRelapse() {
+  state.stats.relapses = (state.stats.relapses || 0) + 1;
+  saveState();
+  document.getElementById('relapse-count').textContent = state.stats.relapses;
+  showToast('⚠️', 'Relapse logged. Get back on track NOW.');
+}
+
+function resetNofap() {
+  if (!confirm('Reset your NoFap streak? This cannot be undone.')) return;
+  state.stats.nofapStreak = 0;
+  state.stats.nofapStartDate = getTodayStr();
+  state.stats.relapses = (state.stats.relapses || 0) + 1;
+  saveState();
+  updateNofapUI();
+  document.getElementById('relapse-count').textContent = state.stats.relapses;
+  showShame(state.stats.nofapStreak);
+}
+
+function showNofapMotivation() {
+  const msg = NOFAP_MESSAGES[Math.floor(Math.random() * NOFAP_MESSAGES.length)];
+  showToast('🔱', msg);
+}
+
+function openAddAppModal() {
+  document.getElementById('modal-add-app').classList.add('active');
+}
+function closeModal(id) {
+  document.getElementById(id).classList.remove('active');
+}
+
+function addApp() {
+  const name = document.getElementById('modal-app-name').value.trim();
+  const emoji = document.getElementById('modal-app-emoji').value.trim() || '📱';
+  if (!name) return;
+  state.detoxApps.push({ name, emoji, violations: 0 });
+  saveState();
+  renderDetoxApps();
+  closeModal('modal-add-app');
+  document.getElementById('modal-app-name').value = '';
+  document.getElementById('modal-app-emoji').value = '';
+  showToast('🚫', `${name} blacklisted.`);
+}
+
+// ---- PROFILE / SETTINGS ----
+function editName() {
+  const newName = prompt('Enter new name:', state.user.name);
+  if (newName && newName.trim()) {
+    state.user.name = newName.trim().toUpperCase();
+    saveState();
+    updateProfileUI();
+    updateHomeUI();
+    showToast('✅', 'Name updated.');
+  }
+}
+
+function resetAllData() {
+  if (!confirm('DELETE ALL DATA? This cannot be undone.')) return;
+  if (!confirm('Are you absolutely sure? All streaks and progress will be lost.')) return;
+  localStorage.removeItem('monkmode_v1');
+  location.reload();
+}
+
+// ---- NOTIFICATIONS / TOAST ----
+function showToast(icon, text) {
+  const toast = document.getElementById('toast');
+  document.getElementById('toast-icon').textContent = icon;
+  document.getElementById('toast-text').textContent = text;
+  toast.classList.add('show');
+  setTimeout(() => toast.classList.remove('show'), 3200);
+}
+
+function maybeShowMotivation() {
+  const msgs = NOTIFICATIONS;
+  const hour = new Date().getHours();
+  let msg;
+  if (hour >= 5 && hour < 10) msg = "Rise early. Dominate the day.";
+  else if (hour >= 22) msg = "End your day with discipline. Log your check-in.";
+  else msg = msgs[Math.floor(Math.random() * msgs.length)];
+
+  setTimeout(() => showToast('🔥', msg), 2000);
+}
+
+// ---- NUMBER ANIMATION ----
+function animateNumber(id, target) {
+  const el = document.getElementById(id);
+  if (!el) return;
+  const start = parseInt(el.textContent) || 0;
+  const diff = target - start;
+  const dur = 600;
+  const startTime = performance.now();
+  function step(now) {
+    const elapsed = now - startTime;
+    const progress = Math.min(elapsed / dur, 1);
+    const eased = 1 - Math.pow(1 - progress, 3);
+    el.textContent = Math.round(start + diff * eased);
+    if (progress < 1) requestAnimationFrame(step);
+  }
+  requestAnimationFrame(step);
+}
+
+// ---- CLOSE MODAL ON OUTSIDE CLICK ----
+document.querySelectorAll('.modal-overlay').forEach(overlay => {
+  overlay.addEventListener('click', function(e) {
+    if (e.target === this) this.classList.remove('active');
+  });
+});
+
+// ---- INIT ----
+window.addEventListener('DOMContentLoaded', init);
+
+// Prevent double-tap zoom
+let lastTap = 0;
+document.addEventListener('touchend', function(e) {
+  const now = Date.now();
+  if (now - lastTap < 300) e.preventDefault();
+  lastTap = now;
+}, { passive: false });
+
+// Keep screen awake during timer (if supported)
+let wakeLock = null;
+async function requestWakeLock() {
+  try {
+    if ('wakeLock' in navigator) {
+      wakeLock = await navigator.wakeLock.request('screen');
+    }
+  } catch(e) {}
+}
+document.getElementById('timer-start-btn').addEventListener('click', requestWakeLock);
+</script>
+</body>
+</html>
